@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自主学 / 测试 / 学情 线稿</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#EEF1F3;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#334155;padding:24px;display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+  .demo{width:390px;flex:0 0 390px;}
+  .label{font-size:12px;font-weight:800;color:#1E293B;margin:0 0 8px 4px;}
+  .label span{font-size:10px;color:#64748B;font-weight:500;margin-left:5px;}
+  .phone{width:390px;height:844px;background:#fff;border:1.5px solid #CBD5E1;border-radius:28px;overflow:hidden;position:relative;display:flex;flex-direction:column;}
+  .status{height:32px;flex:0 0 32px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#94A3B8;}
+  .view{flex:1;overflow:hidden;padding:0 18px 20px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;min-height:34px;font-size:10px;color:#64748B;margin-bottom:10px;}
+  .back{width:28px;height:28px;border:1px solid #CBD5E1;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#F8FAFC;color:#475569;}
+  h1{font-size:20px;margin:2px 0 4px;color:#0F172A;letter-spacing:-.3px;}
+  h2{font-size:11px;margin:14px 0 7px;color:#0F172A;}
+  .sub{font-size:9px;color:#94A3B8;line-height:1.5;margin:0 0 12px;}
+  .box{border:1px dashed #CBD5E1;border-radius:12px;padding:10px;background:#FBFCFD;}
+  .row{display:flex;align-items:center;gap:8px;}
+  .between{display:flex;align-items:center;justify-content:space-between;}
+  .t{font-size:10px;font-weight:700;color:#1E293B;}
+  .d{font-size:8px;color:#94A3B8;margin-top:2px;}
+  .chip{font-size:8px;border:1px solid #CBD5E1;border-radius:999px;padding:4px 7px;color:#64748B;background:#fff;}
+  .chip.on{background:#E7F8F3;border-color:#5EC9AF;color:#0F766E;font-weight:700;}
+  .btn{height:38px;border-radius:10px;border:1px solid #94A3B8;background:#F8FAFC;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#334155;margin-top:10px;}
+  .btn.primary{background:#D9F3EC;border-color:#48B79E;color:#0F766E;}
+  .line{height:1px;background:#E2E8F0;margin:8px 0;}
+  .stat{display:flex;gap:7px;}
+  .stat > div{flex:1;border:1px solid #E2E8F0;border-radius:9px;padding:8px 4px;text-align:center;background:#fff;}
+  .stat b{display:block;font-size:13px;color:#0F172A;}
+  .stat span{font-size:7px;color:#94A3B8;}
+  .progress{height:5px;border-radius:99px;background:#EDF2F0;overflow:hidden;margin-top:5px;}
+  .progress i{display:block;height:100%;background:#9ADBC8;border-radius:99px;}
+  .wordrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #EEF2F6;}
+  .wordrow:last-child{border-bottom:none;}
+  .check{width:15px;height:15px;border:1.5px solid #94A3B8;border-radius:4px;flex:0 0 15px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#0F766E;}
+  .check.on{background:#D9F3EC;border-color:#48B79E;}
+  .w{font-size:10px;font-weight:700;flex:1;}
+  .wm{font-size:8px;color:#94A3B8;}
+  .st{font-size:7px;color:#94A3B8;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .testcard{border:1px solid #CBD5E1;border-radius:11px;padding:9px;min-height:66px;background:#fff;}
+  .testcard .ico{font-size:13px;}
+  .testcard .t{font-size:9px;margin-top:5px;}
+  .testcard .d{font-size:7px;line-height:1.4;}
+  .five{display:flex;gap:5px;justify-content:center;margin:8px 0 12px;}
+  .five span{font-size:8px;color:#94A3B8;border:1px solid #E2E8F0;border-radius:999px;padding:4px 7px;}
+  .five span.on{background:#FFF4DE;border-color:#FBBF24;color:#B45309;font-weight:700;}
+  .bigword{font-size:32px;font-weight:900;text-align:center;margin:10px 0 4px;letter-spacing:-.5px;}
+  .phon{text-align:center;font-size:10px;color:#64748B;margin-bottom:10px;}
+  .emoji{font-size:38px;text-align:center;margin:6px 0;}
+  .meaning{text-align:center;font-size:10px;font-weight:700;margin:6px 0;}
+  .example{border:1px dashed #CBD5E1;border-radius:10px;padding:8px;font-size:9px;line-height:1.5;background:#FBFCFD;}
+  .actions{display:flex;gap:5px;margin-top:10px;}
+  .actions div{flex:1;border:1px solid #CBD5E1;border-radius:8px;padding:7px 2px;text-align:center;font-size:8px;background:#F8FAFC;}
+  .actions .main{background:#D9F3EC;border-color:#48B79E;color:#0F766E;font-weight:700;}
+  .match{display:flex;gap:14px;margin-top:8px;}
+  .match .col{flex:1;display:flex;flex-direction:column;gap:7px;}
+  .match .item{border:1px solid #CBD5E1;border-radius:8px;padding:8px 5px;text-align:center;font-size:9px;background:#fff;}
+  .match .item.sel{border-color:#48B79E;background:#E7F8F3;}
+  .timebar{display:flex;justify-content:space-between;font-size:8px;color:#64748B;margin-bottom:8px;}
+  .unitrow{display:flex;align-items:center;gap:8px;border:1px solid #E2E8F0;border-radius:10px;padding:9px;margin-bottom:6px;}
+  .unitno{width:32px;font-size:8px;font-weight:800;color:#64748B;}
+  .unitrow .u{flex:1;}
+  .unitrow .u .t{font-size:9px;}
+  .unitrow.on{border-color:#48B79E;background:#F2FBF8;}
+  .footerbar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #E2E8F0;padding:10px 18px 14px;display:flex;align-items:center;gap:10px;}
+  .footerbar .info{flex:1;font-size:9px;color:#64748B;}
+  .footerbar .go{background:#D9F3EC;border:1px solid #48B79E;color:#0F766E;border-radius:9px;padding:9px 14px;font-size:9px;font-weight:800;}
+  .tabs{display:flex;gap:6px;margin:4px 0 10px;}
+  .tabs div{flex:1;text-align:center;font-size:9px;border:1px solid #E2E8F0;border-radius:8px;padding:6px 0;color:#64748B;}
+  .tabs .on{background:#E7F8F3;border-color:#48B79E;color:#0F766E;font-weight:700;}
+  .breakdown{margin-top:6px;}
+  .brow{display:flex;align-items:center;gap:7px;font-size:8px;color:#64748B;padding:6px 0;border-bottom:1px solid #F1F5F9;}
+  .brow .name{width:42px;}
+  .brow .bar{flex:1;height:5px;border-radius:99px;background:#EDF2F0;overflow:hidden;}
+  .brow .bar i{display:block;height:100%;background:#9ADBC8;}
+  .brow .val{width:42px;text-align:right;color:#334155;font-weight:700;}
+  .note{font-size:8px;color:#94A3B8;border-left:2px solid #CBD5E1;padding-left:7px;line-height:1.5;margin-top:9px;}
+</style>
+</head>
+<body>
+
+<!-- 01 -->
+<div class="demo">
+  <div class="label">01 · 巩固页入口<span>自主学 + 测试中心</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div>巩固</div><div>本周测评</div></div>
+      <h1>巩固</h1>
+      <p class="sub">要补的、要测的、想自己学的，都在这里。</p>
+
+      <h2>自主学</h2>
+      <div class="box between">
+        <div><div class="t">📚 单元学习</div><div class="d">自己选单元、勾选单词，按五步学</div></div>
+        <div class="chip on">进入 ›</div>
+      </div>
+      <div class="box between" style="margin-top:7px">
+        <div><div class="t">☑️ 自选单词</div><div class="d">从词库/错词里挑词学</div></div>
+        <div class="chip">进入 ›</div>
+      </div>
+
+      <h2>测试</h2>
+      <div class="grid2">
+        <div class="testcard"><div class="ico">🎤</div><div class="t">朗读测试</div><div class="d">跟读评分</div></div>
+        <div class="testcard"><div class="ico">⌨️</div><div class="t">拼写测试</div><div class="d">听音拼写</div></div>
+        <div class="testcard"><div class="ico">🔤</div><div class="t">词义测试</div><div class="d">看词选义</div></div>
+        <div class="testcard"><div class="ico">🔗</div><div class="t">混合配对</div><div class="d">英中连线</div></div>
+      </div>
+
+      <h2>待完成</h2>
+      <div class="box between"><div><div class="t">周中小测 · Unit 3</div><div class="d">5 题 · 2 分钟</div></div><div class="chip on">去完成</div></div>
+      <div class="box between" style="margin-top:7px"><div><div class="t">错词本</div><div class="d">6 个词待巩固</div></div><div class="chip">去巩固 ›</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 -->
+<div class="demo">
+  <div class="label">02 · 单元学习 · 选单元</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>单元学习</div><div></div></div>
+      <h1>选一个单元</h1>
+      <p class="sub">三上 · 人教 PEP · 已学 64 / 168 词</p>
+
+      <div class="unitrow on"><div class="unitno">U1</div><div class="u"><div class="t">Hello!</div><div class="progress"><i style="width:100%"></i></div><div class="d">24 词 · 已学 24 · 已通关</div></div><div class="chip">✓</div></div>
+      <div class="unitrow"><div class="unitno">U2</div><div class="u"><div class="t">Colours</div><div class="progress"><i style="width:76%"></i></div><div class="d">28 词 · 已学 21</div></div><div class="chip">›</div></div>
+      <div class="unitrow"><div class="unitno">U3</div><div class="u"><div class="t">Look at me!</div><div class="progress"><i style="width:38%"></i></div><div class="d">32 词 · 已学 12</div></div><div class="chip">›</div></div>
+      <div class="unitrow"><div class="unitno">U4</div><div class="u"><div class="t">We love animals</div><div class="progress"><i style="width:0%"></i></div><div class="d">28 词 · 未开始</div></div><div class="chip">›</div></div>
+      <div class="unitrow"><div class="unitno">U5</div><div class="u"><div class="t">Let's eat!</div><div class="progress"><i style="width:0%"></i></div><div class="d">30 词 · 未开始</div></div><div class="chip">›</div></div>
+      <div class="unitrow"><div class="unitno">U6</div><div class="u"><div class="t">Happy birthday!</div><div class="progress"><i style="width:0%"></i></div><div class="d">26 词 · 未开始</div></div><div class="chip">›</div></div>
+
+      <div class="note">自主学不受计划限制：可以学已教单元，也可以复习旧单元；不自动生成新计划。</div>
+      <div class="btn primary">下一步：勾选单词</div>
+    </div>
+  </div>
+</div>
+
+<!-- 03 -->
+<div class="demo">
+  <div class="label">03 · 单元学习 · 勾选单词</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>Unit 3 · 选单词</div><div>全选</div></div>
+      <h1>想学哪些词？</h1>
+      <p class="sub">可跨状态勾选，学习过程与计划内单词一致。</p>
+
+      <div class="row" style="gap:5px;margin-bottom:9px"><span class="chip on">全部</span><span class="chip">未学</span><span class="chip">已学</span><span class="chip">错词</span></div>
+      <div class="between" style="font-size:8px;color:#64748B;margin-bottom:5px"><span>已选 12 / 32 词</span><span>按课本顺序</span></div>
+
+      <div class="wordrow"><div class="check on">✓</div><div class="w">apple</div><div class="wm">苹果</div><div class="st">未学</div></div>
+      <div class="wordrow"><div class="check on">✓</div><div class="w">banana</div><div class="wm">香蕉</div><div class="st">未学</div></div>
+      <div class="wordrow"><div class="check"> </div><div class="w">orange</div><div class="wm">橙子</div><div class="st">已掌握</div></div>
+      <div class="wordrow"><div class="check on">✓</div><div class="w">pear</div><div class="wm">梨</div><div class="st">错词</div></div>
+      <div class="wordrow"><div class="check"> </div><div class="w">grape</div><div class="wm">葡萄</div><div class="st">未学</div></div>
+      <div class="wordrow"><div class="check on">✓</div><div class="w">peach</div><div class="wm">桃子</div><div class="st">未学</div></div>
+      <div class="wordrow"><div class="check"> </div><div class="w">water</div><div class="wm">水</div><div class="st">已学</div></div>
+
+      <div class="note">底部固定：显示已选数量，开始后进入学 → 读 → 练 → 拼 → 写。</div>
+    </div>
+    <div class="footerbar"><div class="info">已选 12 词 · 预计 8 分钟</div><div class="go">开始学习</div></div>
+  </div>
+</div>
+
+<!-- 04 -->
+<div class="demo">
+  <div class="label">04 · 自主学 · 复用五步</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>Unit 3 · 第 1 / 12 词</div><div>⚙</div></div>
+      <div class="five"><span class="on">学</span><span>读</span><span>练</span><span>拼</span><span>写</span></div>
+      <div class="bigword">apple</div>
+      <div class="phon">/ˈæpl/ 🔊</div>
+      <div class="emoji">🍎</div>
+      <div class="meaning">n. 苹果</div>
+      <div class="example">I like apples.<br><span style="color:#94A3B8">我喜欢苹果。</span></div>
+      <div class="actions"><div>☆ 收藏</div><div>✓ 掌握</div><div>📖 详解</div><div class="main">下一步 →</div></div>
+      <div class="note">与计划学习共用同一套五步组件；区别只在进入方式和学完后的归集：自主学不改变今日计划，但计入累计学习。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 -->
+<div class="demo">
+  <div class="label">05 · 测试中心</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>测试</div><div>记录 ›</div></div>
+      <h1>选一种测试</h1>
+      <p class="sub">先选范围，再开始；测试结果进学情。</p>
+
+      <div class="row" style="gap:5px;margin-bottom:10px"><span class="chip on">当前单元</span><span class="chip">本周</span><span class="chip">自选单词</span><span class="chip">错词</span></div>
+
+      <div class="grid2">
+        <div class="testcard"><div class="ico">🎤</div><div class="t">朗读测试</div><div class="d">逐词跟读，发音评分</div></div>
+        <div class="testcard"><div class="ico">⌨️</div><div class="t">拼写测试</div><div class="d">听音拼写，检查字母顺序</div></div>
+        <div class="testcard"><div class="ico">🔤</div><div class="t">词义测试</div><div class="d">看词选义 / 看义选词</div></div>
+        <div class="testcard"><div class="ico">🔗</div><div class="t">混合配对</div><div class="d">多个词英中连线</div></div>
+      </div>
+
+      <h2>还可以补充</h2>
+      <div class="box"><div class="t">听音选词</div><div class="d">练“听音辨词”，和拼写测试互补</div></div>
+      <div class="box" style="margin-top:6px"><div class="t">例句填空</div><div class="d">练“词在句子里怎么用”</div></div>
+      <div class="box" style="margin-top:6px"><div class="t">限时挑战</div><div class="d">30 秒/60 秒混合题，做闯关</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 -->
+<div class="demo">
+  <div class="label">06 · 测试设置</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>朗读测试</div><div></div></div>
+      <h1>朗读测试</h1>
+      <p class="sub">逐词跟读，系统评分；不认识的词会进错词本。</p>
+
+      <h2>范围</h2>
+      <div class="row" style="gap:5px"><span class="chip on">Unit 3</span><span class="chip">本周所学</span><span class="chip">错词本</span><span class="chip">自选</span></div>
+
+      <h2>题量</h2>
+      <div class="row" style="gap:5px"><span class="chip on">10 词</span><span class="chip">15 词</span><span class="chip">20 词</span></div>
+
+      <h2>测试说明</h2>
+      <div class="box"><div class="d">1. 看到单词后点击麦克风<br>2. 读完后自动评分<br>3. 低于 60 分进入错词本<br>4. 可重录一次，取最高分</div></div>
+
+      <div class="btn primary">开始测试</div>
+      <div class="note">拼写/词义/混合配对共用同一套“范围 + 题量 + 说明 + 开始”的设置壳，只换题型。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 07 -->
+<div class="demo">
+  <div class="label">07 · 混合配对 · 答题</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div class="back">‹</div><div>混合配对</div><div>01:20</div></div>
+      <div class="timebar"><span>第 1 / 5 组</span><span>已连 0 / 5</span></div>
+
+      <div class="box" style="padding:12px">
+        <div class="d" style="margin-bottom:8px">把英文和中文连起来</div>
+        <div class="match">
+          <div class="col">
+            <div class="item sel">apple</div>
+            <div class="item">banana</div>
+            <div class="item">orange</div>
+            <div class="item">pear</div>
+            <div class="item">grape</div>
+          </div>
+          <div class="col">
+            <div class="item">香蕉</div>
+            <div class="item sel">苹果</div>
+            <div class="item">梨</div>
+            <div class="item">橙子</div>
+            <div class="item">葡萄</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">交互：先点英文，再点中文；连对变绿，连错抖动；全部连完自动进入下一组。</div>
+      <div class="btn primary">提交本组</div>
+    </div>
+  </div>
+</div>
+
+<!-- 08 -->
+<div class="demo">
+  <div class="label">08 · 学情 · 周 / 单元累计</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G</span></div>
+    <div class="view">
+      <div class="topbar"><div>学情</div><div>共 7 周</div></div>
+      <h1>学情</h1>
+      <p class="sub">按周、按单元看累计；不只看一个总数字。</p>
+
+      <div class="tabs"><div class="on">本周</div><div>本单元</div><div>累计</div></div>
+
+      <h2>本周累计</h2>
+      <div class="stat">
+        <div><b>5</b><span>学习天数</span></div>
+        <div><b>32</b><span>新学</span></div>
+        <div><b>60</b><span>复习</span></div>
+        <div><b>3</b><span>测评</span></div>
+      </div>
+
+      <h2>分类表现</h2>
+      <div class="breakdown">
+        <div class="brow"><span class="name">朗读</span><div class="bar"><i style="width:88%"></i></div><span class="val">88 分</span></div>
+        <div class="brow"><span class="name">拼写</span><div class="bar"><i style="width:82%"></i></div><span class="val">82%</span></div>
+        <div class="brow"><span class="name">词义</span><div class="bar"><i style="width:90%"></i></div><span class="val">90%</span></div>
+        <div class="brow"><span class="name">听写</span><div class="bar"><i style="width:92%"></i></div><span class="val">92 分</span></div>
+        <div class="brow"><span class="name">配对</span><div class="bar"><i style="width:76%"></i></div><span class="val">76%</span></div>
+      </div>
+
+      <h2>本单元累计</h2>
+      <div class="box">
+        <div class="between"><span class="t">Unit 3 · Look at me!</span><span class="chip on">24 / 32 词</span></div>
+        <div class="progress" style="margin:8px 0 6px"><i style="width:75%"></i></div>
+        <div class="row" style="justify-content:space-between;font-size:8px;color:#64748B"><span>已掌握 18</span><span>错词 4</span><span>小测 90</span><span>单元测 85</span></div>
+      </div>
+
+      <div class="note">单元维度建议再拆：新学/复习/朗读/拼写/词义/听写/测评，而不是只给一个“掌握率”。</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

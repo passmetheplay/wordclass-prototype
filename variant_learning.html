@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学情页排版方案</title>
+<style>
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:#EDF2F1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#1F2A37;display:flex;gap:22px;justify-content:center;padding:26px 20px 40px;}
+  .demo{width:390px;flex:0 0 390px;}
+  .label{font-size:13px;font-weight:800;margin:0 0 10px 6px;color:#1F2A37;}
+  .label span{font-weight:600;color:#6B7280;font-size:11px;margin-left:6px;}
+  .phone{width:390px;height:844px;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 20px 50px rgba(31,42,55,.14);position:relative;display:flex;flex-direction:column;}
+  .status{height:42px;flex:0 0 42px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;}
+  .view{flex:1;overflow:hidden;padding:0 20px 78px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#6B7280;padding:2px 0 12px;}
+  h1{font-size:26px;margin:6px 0 4px;letter-spacing:-.5px;}
+  .sub{font-size:12px;color:#6B7280;margin:0 0 16px;}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:70px;background:#fff;border-top:1px solid #E8EDF0;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#9AA6A2;}
+  .nav div{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .nav .on{color:#1FA184;font-weight:800;}
+  .nav .ico{font-size:17px;}
+  .pill{font-size:9px;font-weight:800;color:#1FA184;background:#fff;border-radius:999px;padding:5px 8px;}
+  .date{font-size:9px;font-weight:800;color:#1FA184;background:#fff;border:1px solid #CFE8DF;border-radius:999px;padding:6px 8px;}
+
+  /* A */
+  .heroA{background:linear-gradient(135deg,#EAF9F4,#F8FDFB);border:1px solid #CDEDE4;border-radius:22px;padding:15px;margin-bottom:12px;}
+  .heroA .row{display:flex;justify-content:space-between;align-items:center;}
+  .stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:12px 0 10px;}
+  .stats4 b{display:block;text-align:center;font-size:17px;}
+  .stats4 span{display:block;text-align:center;font-size:8px;color:#6B7280;margin-top:2px;}
+  .spark{display:flex;align-items:flex-end;gap:5px;height:32px;margin:0 2px 12px;}
+  .spark i{flex:1;background:#9BE3CE;border-radius:3px 3px 1px 1px;}
+  .spark i.on{background:#2FBF9B;}
+  .btnA{width:100%;height:38px;border:none;border-radius:12px;background:#2FBF9B;color:#fff;font-size:11px;font-weight:800;}
+  .quick2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+  .q{background:#fff;border:1px solid #E8EDF0;border-radius:14px;padding:10px;display:flex;align-items:center;gap:8px;font-size:10px;}
+  .q b{font-size:12px;}
+  .q .go{margin-left:auto;color:#1FA184;font-weight:800;}
+  .cum{background:#F7FBF9;border-radius:14px;padding:12px;margin-bottom:11px;}
+  .cum .t{font-size:10px;color:#6B7280;display:flex;justify-content:space-between;margin-bottom:8px;}
+  .cum .v{display:flex;justify-content:space-between;text-align:center;}
+  .cum .v b{display:block;font-size:16px;}
+  .cum .v span{font-size:8px;color:#9AA6A2;}
+  .hist{display:flex;justify-content:space-between;align-items:center;border:1px solid #E8EDF0;border-radius:14px;padding:12px;font-size:11px;font-weight:800;}
+  .hist .go{color:#1FA184;font-size:10px;}
+
+  /* B */
+  .bento{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+  .b{background:#fff;border:1px solid #E8EDF0;border-radius:16px;padding:12px;min-height:94px;}
+  .b.big{grid-column:span 2;background:linear-gradient(135deg,#145A4A,#0F766E);color:#fff;display:flex;align-items:center;gap:14px;min-height:118px;}
+  .b.big .k{font-size:10px;color:rgba(255,255,255,.7);}
+  .b.big .n{font-size:34px;font-weight:900;margin-top:2px;}
+  .b.big .trend{font-size:9px;color:#FFE3A3;margin-top:3px;}
+  .ringB{width:70px;height:70px;border-radius:50%;background:conic-gradient(#FFD166 0 85%,rgba(255,255,255,.16) 85% 100%);display:flex;align-items:center;justify-content:center;flex:0 0 70px;}
+  .ringB:after{content:"85%";width:54px;height:54px;border-radius:50%;background:#145A4A;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;}
+  .b .k{font-size:9px;color:#8A9692;}
+  .b .n{font-size:22px;font-weight:900;margin-top:5px;}
+  .b .sub2{font-size:8px;color:#9AA6A2;margin-top:2px;}
+  .b.wide{grid-column:span 2;display:flex;align-items:center;justify-content:space-between;min-height:70px;}
+  .b.wide .cum3{display:flex;gap:14px;text-align:center;}
+  .b.wide .cum3 b{display:block;font-size:14px;}
+  .b.wide .cum3 span{font-size:8px;color:#9AA6A2;}
+  .b.wide .arrow{color:#1FA184;font-weight:800;font-size:11px;}
+  .b.quick{min-height:52px;display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:800;}
+  .b.quick .ico{margin-right:5px;}
+
+  /* C */
+  .currentC{background:linear-gradient(135deg,#EAF9F4,#F8FDFB);border:1px solid #CDEDE4;border-radius:20px;padding:14px;margin-bottom:10px;}
+  .currentC .row{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#5C6A66;}
+  .currentC .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;text-align:center;}
+  .currentC .stats3 b{display:block;font-size:19px;}
+  .currentC .stats3 span{font-size:8px;color:#6B7280;}
+  .chips{display:flex;gap:6px;margin-bottom:12px;}
+  .chips span{flex:1;background:#F7FBF9;border-radius:9px;padding:7px 4px;text-align:center;font-size:8px;color:#8A9692;}
+  .chips b{display:block;font-size:11px;color:#1F2A37;margin-bottom:1px;}
+  .tl{position:relative;padding-left:14px;}
+  .tl:before{content:"";position:absolute;left:4px;top:6px;bottom:8px;width:2px;background:#E7EEEC;}
+  .ti{position:relative;margin-bottom:11px;}
+  .ti:before{content:"";position:absolute;left:-14px;top:5px;width:10px;height:10px;border-radius:50%;background:#D8E2DF;border:2px solid #fff;}
+  .ti.on:before{background:#2FBF9B;box-shadow:0 0 0 3px #E7F8F3;}
+  .ti .r{font-size:11px;font-weight:800;display:flex;justify-content:space-between;}
+  .ti .r span{font-size:8px;color:#1FA184;background:#E7F8F3;border-radius:999px;padding:2px 6px;}
+  .ti .m{font-size:9px;color:#8A9692;margin:3px 0 5px;}
+  .ti .bar{height:5px;background:#EFF4F2;border-radius:99px;overflow:hidden;}
+  .ti .bar i{display:block;height:100%;background:#6AD9BE;border-radius:99px;}
+  .quickC{display:flex;gap:8px;margin-top:12px;}
+  .quickC div{flex:1;border:1px solid #E8EDF0;border-radius:12px;padding:9px;font-size:9px;display:flex;justify-content:space-between;color:#5C6A66;}
+  .quickC b{color:#1F2A37;}
+</style>
+</head>
+<body>
+
+<!-- 方案 A -->
+<div class="demo">
+  <div class="label">方案 A · 周报优先<span>层级最清楚，任务感弱</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="heroA">
+        <div class="row"><span class="pill">本周学情</span><span class="date">11.04 – 11.10 ⌄</span></div>
+        <div class="stats4">
+          <div><b>5</b><span>学习天数</span></div>
+          <div><b>32</b><span>新学词</span></div>
+          <div><b>85%</b><span>掌握率</span></div>
+          <div><b>12</b><span>分钟/天</span></div>
+        </div>
+        <div class="spark"><i style="height:40%"></i><i style="height:58%"></i><i style="height:45%"></i><i class="on" style="height:72%"></i><i style="height:50%"></i><i style="height:28%"></i><i style="height:20%"></i></div>
+        <button class="btnA">查看完整报告</button>
+      </div>
+
+      <div class="quick2">
+        <div class="q">📚 <span><b>学习地图</b><br>2/6 已通关</span><span class="go">›</span></div>
+        <div class="q">🎯 <span><b>测评记录</b><br>最近 90 分</span><span class="go">›</span></div>
+      </div>
+
+      <div class="cum">
+        <div class="t"><span>累计学习</span><span>本学期</span></div>
+        <div class="v"><div><b>6h18</b><span>累计时长</span></div><div><b>28天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div></div>
+      </div>
+
+      <div class="hist"><span>全部历史报告 · 7 周</span><span class="go">查看 ›</span></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- 方案 B -->
+<div class="demo">
+  <div class="label">方案 B · 数据仪表盘<span>信息密度高，更有数据感</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="bento">
+        <div class="b big">
+          <div style="flex:1"><div class="k">本周掌握率</div><div class="n">85%</div><div class="trend">↑ 比上周 +3%</div></div>
+          <div class="ringB"></div>
+        </div>
+        <div class="b"><div class="k">学习天数</div><div class="n">5 天</div><div class="sub2">本周目标 5 天</div></div>
+        <div class="b"><div class="k">新学词</div><div class="n">32</div><div class="sub2">日均 6.4 词</div></div>
+        <div class="b wide">
+          <div class="k">累计学习<br><span style="font-weight:400">本学期</span></div>
+          <div class="cum3"><div><b>6h18</b><span>时长</span></div><div><b>28天</b><span>天数</span></div><div><b>64</b><span>学词</span></div></div>
+        </div>
+        <div class="b quick"><span><span class="ico">📚</span>学习地图</span><span>2/6 ›</span></div>
+        <div class="b quick"><span><span class="ico">🎯</span>测评记录</span><span>90 ›</span></div>
+      </div>
+
+      <div class="hist"><span>全部历史报告 · 7 周</span><span class="go">查看 ›</span></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- 方案 C -->
+<div class="demo">
+  <div class="label">方案 C · 成长时间线<span>最有坚持感，历史最直观</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="currentC">
+        <div class="row"><b>本周 · 11.04 – 11.10</b><span>查看报告 ›</span></div>
+        <div class="stats3"><div><b>5</b><span>学习天数</span></div><div><b>32</b><span>新学词</span></div><div><b>85%</b><span>掌握率</span></div></div>
+      </div>
+
+      <div class="chips">
+        <span><b>6h18</b>累计时长</span><span><b>28 天</b>累计天数</span><span><b>64</b>累计学词</span>
+      </div>
+
+      <div class="tl">
+        <div class="ti on"><div class="r">11.04 – 11.10 <span>本周</span></div><div class="m">5 天 · 32 词 · 85%</div><div class="bar"><i style="width:85%"></i></div></div>
+        <div class="ti"><div class="r">10.28 – 11.03 <span>88%</span></div><div class="m">6 天 · 35 词 · 88%</div><div class="bar"><i style="width:88%"></i></div></div>
+        <div class="ti"><div class="r">10.21 – 10.27 <span>80%</span></div><div class="m">4 天 · 24 词 · 80%</div><div class="bar"><i style="width:80%"></i></div></div>
+        <div class="ti"><div class="r">10.14 – 10.20 <span>82%</span></div><div class="m">5 天 · 30 词 · 82%</div><div class="bar"><i style="width:82%"></i></div></div>
+        <div class="ti"><div class="r">10.07 – 10.13 <span>84%</span></div><div class="m">5 天 · 28 词 · 84%</div><div class="bar"><i style="width:84%"></i></div></div>
+      </div>
+
+      <div class="quickC">
+        <div><b>📚 学习地图</b><span>2/6 ›</span></div>
+        <div><b>🎯 测评记录</b><span>90 ›</span></div>
+      </div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+</body>
+</html>

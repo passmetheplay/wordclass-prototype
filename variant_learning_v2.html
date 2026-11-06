@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学情页重排版方案</title>
+<style>
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:#EDF2F1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#1F2A37;display:flex;gap:22px;justify-content:center;padding:26px 20px 40px;}
+  .demo{width:390px;flex:0 0 390px;}
+  .label{font-size:13px;font-weight:800;margin:0 0 10px 6px;}
+  .label span{font-weight:600;color:#6B7280;font-size:11px;margin-left:6px;}
+  .phone{width:390px;height:844px;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 20px 50px rgba(31,42,55,.14);position:relative;display:flex;flex-direction:column;}
+  .status{height:42px;flex:0 0 42px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;}
+  .view{flex:1;overflow:hidden;padding:0 20px 78px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#6B7280;padding:2px 0 12px;}
+  h1{font-size:26px;margin:6px 0 4px;letter-spacing:-.5px;}
+  .sub{font-size:12px;color:#6B7280;margin:0 0 15px;}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:70px;background:#fff;border-top:1px solid #E8EDF0;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#9AA6A2;}
+  .nav div{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .nav .on{color:#1FA184;font-weight:800;}
+  .nav .ico{font-size:17px;}
+  .date{font-size:9px;font-weight:800;color:#1FA184;background:#fff;border:1px solid #CFE8DF;border-radius:999px;padding:6px 8px;}
+  .sec{display:flex;justify-content:space-between;align-items:center;margin:13px 0 8px;font-size:12px;font-weight:800;}
+  .sec span{font-size:9px;color:#1FA184;font-weight:700;}
+
+  /* 1 */
+  .week1{background:linear-gradient(135deg,#EAF9F4,#F8FDFB);border:1px solid #CDEDE4;border-radius:22px;padding:14px;}
+  .w1top{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#5C6A66;}
+  .w1main{display:flex;align-items:flex-end;justify-content:space-between;margin:8px 0 10px;}
+  .w1main .n{font-size:36px;font-weight:900;line-height:1;}
+  .w1main .k{font-size:9px;color:#6B7280;margin-top:4px;}
+  .w1spark{display:flex;align-items:flex-end;gap:4px;height:38px;width:120px;}
+  .w1spark i{flex:1;background:#9BE3CE;border-radius:3px 3px 1px 1px;}
+  .w1spark i.on{background:#2FBF9B;}
+  .w1stats{display:flex;gap:7px;margin-bottom:10px;}
+  .w1stats span{flex:1;text-align:center;font-size:8px;color:#6B7280;background:#fff;border-radius:8px;padding:6px 2px;}
+  .w1stats b{display:block;font-size:12px;color:#1F2A37;margin-bottom:1px;}
+  .linkbtn{font-size:9px;font-weight:800;color:#1FA184;text-align:right;}
+
+  .cumrow{display:flex;align-items:center;justify-content:space-between;background:#F7FBF9;border-radius:14px;padding:11px 12px;}
+  .cumrow .l{font-size:9px;color:#8A9692;}
+  .cumrow .v{display:flex;gap:14px;text-align:center;}
+  .cumrow b{display:block;font-size:13px;}
+  .cumrow span{font-size:8px;color:#9AA6A2;}
+
+  .assess{background:#fff;border:1px solid #E8EDF0;border-radius:16px;padding:10px 12px;}
+  .arow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid #EEF3F1;}
+  .arow:first-child{border-top:none;padding-top:2px;}
+  .arow .t{font-size:11px;font-weight:800;}
+  .arow .d{font-size:9px;color:#8A9692;margin-top:2px;}
+  .arow b{font-size:16px;color:#1FA184;}
+  .arow small{font-size:8px;color:#8A9692;}
+
+  .map{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E8EDF0;border-radius:16px;padding:12px 13px;}
+  .map .ico{width:36px;height:36px;border-radius:11px;background:#E7F8F3;display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 36px;}
+  .map .m{flex:1;}
+  .map .t{font-size:12px;font-weight:800;}
+  .map .d{font-size:9px;color:#8A9692;margin-top:2px;}
+  .map .go{font-size:9px;font-weight:800;color:#1FA184;}
+
+  /* 2 */
+  .overview{background:linear-gradient(135deg,#145A4A,#0F766E);border-radius:22px;padding:15px;color:#fff;}
+  .ovtop{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:rgba(255,255,255,.72);}
+  .ovmain{display:flex;align-items:center;justify-content:space-between;margin:9px 0 12px;}
+  .ovmain .n{font-size:38px;font-weight:900;line-height:1;}
+  .ovmain .k{font-size:9px;color:#FFE3A3;margin-top:4px;}
+  .ovring{width:72px;height:72px;border-radius:50%;background:conic-gradient(#FFD166 0 85%,rgba(255,255,255,.16) 85% 100%);display:flex;align-items:center;justify-content:center;position:relative;}
+  .ovring:after{content:"";position:absolute;inset:9px;border-radius:50%;background:#145A4A;}
+  .ovring span{position:relative;z-index:1;font-size:13px;font-weight:900;}
+  .ovcum{display:flex;justify-content:space-around;text-align:center;border-top:1px solid rgba(255,255,255,.14);padding-top:10px;margin-bottom:8px;}
+  .ovcum b{display:block;font-size:13px;}
+  .ovcum span{font-size:8px;color:rgba(255,255,255,.6);}
+  .ovfoot{display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,.68);}
+
+  /* 3 */
+  .achieve{background:linear-gradient(135deg,#FFF7E4,#FFFDF8);border:1px solid #F4E3BC;border-radius:22px;padding:14px;}
+  .actop{display:flex;justify-content:space-between;font-size:9px;color:#8A6A20;}
+  .actime{font-size:26px;font-weight:900;color:#7A4A00;margin:5px 0 1px;}
+  .actime b{font-size:31px;}
+  .aclabel{font-size:9px;color:#9A7A40;}
+  .acgrid{display:flex;justify-content:space-between;border-top:1px solid #F1E3C8;margin-top:10px;padding-top:10px;text-align:center;}
+  .acgrid b{display:block;font-size:15px;color:#7A4A00;}
+  .acgrid span{font-size:8px;color:#9A7A40;}
+  .week3{background:#fff;border:1px solid #E8EDF0;border-radius:18px;padding:13px 14px;}
+  .w3top{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#6B7280;}
+  .w3stats{display:flex;gap:7px;margin-top:10px;}
+  .w3stats span{flex:1;text-align:center;font-size:8px;color:#8A9692;background:#F7FBF9;border-radius:8px;padding:7px 2px;}
+  .w3stats b{display:block;font-size:13px;color:#1F2A37;margin-bottom:1px;}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<div class="demo">
+  <div class="label">方案 1 · 本周优先<span>周 → 累计 → 测评 → 地图</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="week1">
+        <div class="w1top"><span>本周学情 · 11.04 – 11.10</span><span class="date">切换周 ⌄</span></div>
+        <div class="w1main">
+          <div><div class="n">85%</div><div class="k">本周掌握率</div></div>
+          <div class="w1spark"><i style="height:42%"></i><i style="height:58%"></i><i style="height:46%"></i><i class="on" style="height:78%"></i><i style="height:55%"></i><i style="height:32%"></i><i style="height:24%"></i></div>
+        </div>
+        <div class="w1stats"><span><b>5 天</b>学习天数</span><span><b>32</b>新学词</span><span><b>12</b>分钟/天</span></div>
+        <div class="linkbtn">查看完整报告 ›</div>
+      </div>
+
+      <div class="sec"><b>累计学习</b><span>本学期</span></div>
+      <div class="cumrow"><span class="l">累计</span><div class="v"><div><b>6h18</b><span>时长</span></div><div><b>28天</b><span>天数</span></div><div><b>64</b><span>学词</span></div></div></div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+
+      <div class="sec"><b>学习地图</b><span>2/6 已通关</span></div>
+      <div class="map"><div class="ico">📚</div><div class="m"><div class="t">Unit 3 · Look at me!</div><div class="d">12 / 32 词 · 进行中</div></div><div class="go">查看 ›</div></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="demo">
+  <div class="label">方案 2 · 总览合并<span>本周 + 累计合成一张卡</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="overview">
+        <div class="ovtop"><span>本周掌握率</span><span class="date">11.04 – 11.10 ⌄</span></div>
+        <div class="ovmain"><div><div class="n">85%</div><div class="k">↑ 比上周 +3%</div></div><div class="ovring"><span>85%</span></div></div>
+        <div class="ovcum"><div><b>6h18</b><span>累计时长</span></div><div><b>28天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div></div>
+        <div class="ovfoot"><span>本周 5 天 · 32 词</span><span>查看完整报告 ›</span></div>
+      </div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+
+      <div class="sec"><b>学习地图</b><span>2/6 已通关</span></div>
+      <div class="map"><div class="ico">📚</div><div class="m"><div class="t">Unit 3 · Look at me!</div><div class="d">12 / 32 词 · 进行中</div></div><div class="go">查看 ›</div></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="demo">
+  <div class="label">方案 3 · 成果优先<span>累计 → 本周 → 测评 → 地图</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="achieve">
+        <div class="actop"><span>学习成就</span><span>本学期</span></div>
+        <div class="actime"><b>6</b> 小时 <b>18</b> 分</div>
+        <div class="aclabel">累计学习时长</div>
+        <div class="acgrid"><div><b>28 天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div><div><b>128</b><span>累计星星</span></div></div>
+      </div>
+
+      <div class="sec"><b>本周表现</b><span>11.04 – 11.10 ⌄</span></div>
+      <div class="week3">
+        <div class="w3top"><span>本周掌握率</span><b style="color:#1FA184">85%</b></div>
+        <div class="w3stats"><span><b>5 天</b>学习天数</span><span><b>32</b>新学词</span><span><b>12</b>分钟/天</span></div>
+      </div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+
+      <div class="sec"><b>学习地图</b><span>2/6 已通关</span></div>
+      <div class="map"><div class="ico">📚</div><div class="m"><div class="t">Unit 3 · Look at me!</div><div class="d">12 / 32 词 · 进行中</div></div><div class="go">查看 ›</div></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+</body>
+</html>

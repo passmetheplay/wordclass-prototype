@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日页顶部方案</title>
+<style>
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:#EDF2F1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#1F2A37;display:flex;gap:22px;justify-content:center;padding:26px 20px 40px;}
+  .demo{width:390px;flex:0 0 390px;}
+  .label{font-size:13px;font-weight:800;margin:0 0 10px 6px;}
+  .label span{font-weight:600;color:#6B7280;font-size:11px;margin-left:6px;}
+  .phone{width:390px;height:844px;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 20px 50px rgba(31,42,55,.14);position:relative;display:flex;flex-direction:column;}
+  .status{height:42px;flex:0 0 42px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;}
+  .view{flex:1;overflow:hidden;padding:0 20px 78px;}
+  .hello{display:flex;align-items:center;justify-content:space-between;padding:4px 0 14px;}
+  .who{display:flex;align-items:center;gap:10px;}
+  .avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#FFE7A8,#FFC95C);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .t{font-size:17px;font-weight:900;}
+  .d{font-size:11px;color:#6B7280;margin-top:2px;}
+  .edit{font-size:9px;font-weight:800;color:#1FA184;background:#E7F8F3;border-radius:999px;padding:2px 6px;margin-left:5px;}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:70px;background:#fff;border-top:1px solid #E8EDF0;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#9AA6A2;}
+  .nav div{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .nav .on{color:#1FA184;font-weight:800;}
+  .nav .ico{font-size:17px;}
+
+  .tasks{display:flex;flex-direction:column;gap:9px;margin-top:12px;}
+  .task{display:flex;align-items:center;gap:11px;border:1px solid #E8EDF0;border-radius:16px;padding:12px;background:#fff;}
+  .ti{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 42px;}
+  .ti.g{background:#E7F8F3;} .ti.b{background:#EAF1FF;} .ti.o{background:#FFF4DE;}
+  .tm{flex:1;}
+  .tm .t{font-size:14px;} .tm .d{font-size:10px;}
+  .go{font-size:10px;font-weight:800;color:#1FA184;background:#E7F8F3;border-radius:999px;padding:7px 10px;}
+  .week{background:#fff;border:1px solid #E8EDF0;border-radius:18px;padding:12px 14px;margin-top:11px;}
+  .week-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:10px;}
+  .week-top span{font-size:10px;font-weight:800;color:#1FA184;}
+  .days{display:flex;justify-content:space-between;}
+  .day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;color:#9AA6A2;}
+  .day i{width:28px;height:28px;border-radius:50%;background:#F1F5F3;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10px;font-weight:800;color:#B0BCB8;}
+  .day.done i{background:#2FBF9B;color:#fff;}
+  .day.today i{background:#fff;border:2px solid #2FBF9B;color:#1FA184;}
+
+  /* A */
+  .topA{display:flex;align-items:center;gap:14px;background:#F7FBF9;border:1px solid #E3F0EB;border-radius:20px;padding:12px 14px;margin-bottom:2px;}
+  .ringA{width:66px;height:66px;border-radius:50%;background:conic-gradient(#2FBF9B 0 0%, #E9F1EE 0 100%);display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 66px;}
+  .ringA:after{content:"";position:absolute;inset:8px;border-radius:50%;background:#F7FBF9;}
+  .ringA .in{position:relative;z-index:1;text-align:center;}
+  .ringA b{display:block;font-size:17px;}
+  .ringA span{font-size:8px;color:#6B7280;}
+  .topA .tt{font-size:18px;font-weight:900;}
+  .topA .dd{font-size:10px;color:#6B7280;margin-top:2px;}
+  .rewardA{display:inline-flex;align-items:center;gap:4px;background:#FFF4DE;border:1px solid #FFE3AE;color:#B26A00;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:800;margin-top:6px;}
+
+  /* B */
+  .topB{background:#fff;border:1px solid #E8EDF0;border-radius:18px;padding:13px 14px;}
+  .topB .row{display:flex;justify-content:space-between;align-items:baseline;}
+  .topB .row b{font-size:15px;}
+  .topB .row span{font-size:9px;color:#6B7280;}
+  .segments{display:flex;gap:5px;margin:10px 0 8px;}
+  .segments i{flex:1;height:8px;border-radius:99px;background:#EDF2F0;display:block;}
+  .segments i.on{background:#2FBF9B;}
+  .topB .row2{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#8A9692;}
+  .gold{color:#B26A00;background:#FFF4DE;border:1px solid #FFE3AE;border-radius:999px;padding:3px 7px;font-weight:800;}
+
+  /* C */
+  .topC{background:linear-gradient(135deg,#FFF7E4,#FFFDF8);border:1px solid #F4E3BC;border-radius:16px;padding:11px 12px;}
+  .topC .row{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;color:#8A6A20;}
+  .topC .row b{font-size:14px;color:#7A4A00;}
+  .topC .track{height:7px;background:#F4E8CC;border-radius:99px;margin:8px 0;overflow:hidden;}
+  .topC .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,#FFB020,#FFD166);border-radius:99px;}
+  .topC .chips{display:flex;gap:5px;}
+  .topC .chips span{flex:1;text-align:center;font-size:8px;color:#9A7A40;background:#fff;border:1px solid #F4E3BC;border-radius:7px;padding:4px 2px;}
+  .topC .end{display:flex;justify-content:space-between;align-items:center;margin-top:7px;font-size:8px;color:#8A6A20;}
+  .topC .end b{font-size:10px;color:#B26A00;}
+</style>
+</head>
+<body>
+
+<!-- A -->
+<div class="demo">
+  <div class="label">方案 A · 紧凑圆环<span>保留圆环，但缩成一行</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="hello"><div class="who"><div class="avatar">🐣</div><div><div class="t">早上好，词词</div><div class="d">三上 Unit 3 · Part B <span class="edit">修改 ›</span></div></div></div><div>🔔</div></div>
+      <div class="topA">
+        <div class="ringA"><div class="in"><b>0/3</b><span>今日</span></div></div>
+        <div><div class="tt">今天 12 分钟</div><div class="dd">先复习，再学新词，最后听写</div><div class="rewardA">⭐ 完成得 +20 · 今日 0</div></div>
+      </div>
+      <div class="tasks">
+        <div class="task"><div class="ti g">📖</div><div class="tm"><div class="t">新学 5 词</div><div class="d">Unit 3 · 约 5 分钟</div></div><div class="go">开始</div></div>
+        <div class="task"><div class="ti b">🔁</div><div class="tm"><div class="t">复习 7 词</div><div class="d">到期词 · 约 4 分钟</div></div><div class="go">去复习</div></div>
+        <div class="task"><div class="ti o">🎧</div><div class="tm"><div class="t">听写 5 词</div><div class="d">检查今天学的 · 约 3 分钟</div></div><div class="go">去听写</div></div>
+      </div>
+      <div class="week"><div class="week-top"><b>🔥 连续 6 天</b><span>本周 4/5 天</span></div><div class="days"><div class="day done"><i>✓</i><span>一</span></div><div class="day done"><i>✓</i><span>二</span></div><div class="day done"><i>✓</i><span>三</span></div><div class="day done"><i>✓</i><span>四</span></div><div class="day today"><i>●</i><span>五</span></div><div class="day"><i></i><span>六</span></div><div class="day"><i></i><span>日</span></div></div></div>
+    </div>
+    <div class="nav"><div class="on"><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- B -->
+<div class="demo">
+  <div class="label">方案 B · 分段进度<span>最干净，信息最少</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="hello"><div class="who"><div class="avatar">🐣</div><div><div class="t">早上好，词词</div><div class="d">三上 Unit 3 · Part B <span class="edit">修改 ›</span></div></div></div><div>🔔</div></div>
+      <div class="topB">
+        <div class="row"><b>今日进度 0/3</b><span>今天 12 分钟</span></div>
+        <div class="segments"><i></i><i></i><i></i></div>
+        <div class="row2"><span>新学 · 复习 · 听写</span><span class="gold">完成 +20 ⭐</span></div>
+      </div>
+      <div class="tasks">
+        <div class="task"><div class="ti g">📖</div><div class="tm"><div class="t">新学 5 词</div><div class="d">Unit 3 · 约 5 分钟</div></div><div class="go">开始</div></div>
+        <div class="task"><div class="ti b">🔁</div><div class="tm"><div class="t">复习 7 词</div><div class="d">到期词 · 约 4 分钟</div></div><div class="go">去复习</div></div>
+        <div class="task"><div class="ti o">🎧</div><div class="tm"><div class="t">听写 5 词</div><div class="d">检查今天学的 · 约 3 分钟</div></div><div class="go">去听写</div></div>
+      </div>
+      <div class="week"><div class="week-top"><b>🔥 连续 6 天</b><span>本周 4/5 天</span></div><div class="days"><div class="day done"><i>✓</i><span>一</span></div><div class="day done"><i>✓</i><span>二</span></div><div class="day done"><i>✓</i><span>三</span></div><div class="day done"><i>✓</i><span>四</span></div><div class="day today"><i>●</i><span>五</span></div><div class="day"><i></i><span>六</span></div><div class="day"><i></i><span>日</span></div></div></div>
+    </div>
+    <div class="nav"><div class="on"><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- C -->
+<div class="demo">
+  <div class="label">方案 C · 奖励条优先<span>最有激励感，最紧凑</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="hello"><div class="who"><div class="avatar">🐣</div><div><div class="t">早上好，词词</div><div class="d">三上 Unit 3 · Part B <span class="edit">修改 ›</span></div></div></div><div>🔔</div></div>
+      <div class="topC">
+        <div class="row"><b>今天 12 分钟 · 0/3</b><span>今日奖励 0/20 ⭐</span></div>
+        <div class="track"><i></i></div>
+        <div class="chips"><span>新学 +10</span><span>复习 +5</span><span>听写 +5</span></div>
+        <div class="end"><span>完成 3 件事，额外得「今日全勤」</span><b>+20 ⭐</b></div>
+      </div>
+      <div class="tasks">
+        <div class="task"><div class="ti g">📖</div><div class="tm"><div class="t">新学 5 词</div><div class="d">Unit 3 · 约 5 分钟</div></div><div class="go">开始</div></div>
+        <div class="task"><div class="ti b">🔁</div><div class="tm"><div class="t">复习 7 词</div><div class="d">到期词 · 约 4 分钟</div></div><div class="go">去复习</div></div>
+        <div class="task"><div class="ti o">🎧</div><div class="tm"><div class="t">听写 5 词</div><div class="d">检查今天学的 · 约 3 分钟</div></div><div class="go">去听写</div></div>
+      </div>
+      <div class="week"><div class="week-top"><b>🔥 连续 6 天</b><span>本周 4/5 天</span></div><div class="days"><div class="day done"><i>✓</i><span>一</span></div><div class="day done"><i>✓</i><span>二</span></div><div class="day done"><i>✓</i><span>三</span></div><div class="day done"><i>✓</i><span>四</span></div><div class="day today"><i>●</i><span>五</span></div><div class="day"><i></i><span>六</span></div><div class="day"><i></i><span>日</span></div></div></div>
+    </div>
+    <div class="nav"><div class="on"><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+</body>
+</html>

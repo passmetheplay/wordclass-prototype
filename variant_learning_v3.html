@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学情页 · 方案 1 衍生</title>
+<style>
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:#EDF2F1;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#1F2A37;display:flex;gap:22px;justify-content:center;padding:26px 20px 40px;}
+  .demo{width:390px;flex:0 0 390px;}
+  .label{font-size:13px;font-weight:800;margin:0 0 10px 6px;}
+  .label span{font-weight:600;color:#6B7280;font-size:11px;margin-left:6px;}
+  .phone{width:390px;height:844px;background:#fff;border-radius:34px;overflow:hidden;box-shadow:0 20px 50px rgba(31,42,55,.14);position:relative;display:flex;flex-direction:column;}
+  .status{height:42px;flex:0 0 42px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;}
+  .view{flex:1;overflow:hidden;padding:0 20px 78px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#6B7280;padding:2px 0 12px;}
+  h1{font-size:26px;margin:6px 0 4px;letter-spacing:-.5px;}
+  .sub{font-size:12px;color:#6B7280;margin:0 0 14px;}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:70px;background:#fff;border-top:1px solid #E8EDF0;display:flex;justify-content:space-around;align-items:center;font-size:9px;color:#9AA6A2;}
+  .nav div{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .nav .on{color:#1FA184;font-weight:800;}
+  .nav .ico{font-size:17px;}
+  .date{font-size:9px;font-weight:800;color:#1FA184;background:#fff;border:1px solid #CFE8DF;border-radius:999px;padding:6px 8px;}
+  .sec{display:flex;justify-content:space-between;align-items:center;margin:12px 0 7px;font-size:12px;font-weight:800;}
+  .sec span{font-size:9px;color:#1FA184;font-weight:700;}
+
+  /* 累计 */
+  .cumCard{background:#fff;border:1px solid #E8EDF0;border-radius:18px;padding:13px 14px;}
+  .cumTop{display:flex;justify-content:space-between;font-size:9px;color:#8A9692;}
+  .cumStats{display:flex;justify-content:space-between;margin-top:9px;text-align:center;}
+  .cumStats b{display:block;font-size:17px;}
+  .cumStats span{font-size:8px;color:#9AA6A2;}
+
+  /* 榜单条 */
+  .rankBar{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#FFF7E4,#FFFDF8);border:1px solid #F4E3BC;border-radius:14px;padding:10px 12px;margin-top:9px;}
+  .rankBar .ico{font-size:15px;}
+  .rankBar .t{font-size:10px;font-weight:800;color:#8A6A20;}
+  .rankBar .n{margin-left:auto;font-size:10px;font-weight:800;color:#B26A00;}
+  .rankBar .go{font-size:9px;color:#C9A45C;}
+
+  /* 周卡 */
+  .weekCard{background:linear-gradient(135deg,#EAF9F4,#F8FDFB);border:1px solid #CDEDE4;border-radius:20px;padding:13px 14px;}
+  .wTop{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#5C6A66;}
+  .wMain{display:flex;align-items:flex-end;justify-content:space-between;margin:7px 0 9px;}
+  .wMain .n{font-size:33px;font-weight:900;line-height:1;}
+  .wMain .k{font-size:8px;color:#6B7280;margin-top:3px;}
+  .spark{display:flex;align-items:flex-end;gap:4px;height:34px;width:112px;}
+  .spark i{flex:1;background:#9BE3CE;border-radius:3px 3px 1px 1px;}
+  .spark i.on{background:#2FBF9B;}
+  .wStats{display:flex;gap:6px;}
+  .wStats span{flex:1;text-align:center;font-size:8px;color:#6B7280;background:#fff;border-radius:7px;padding:5px 2px;}
+  .wStats b{display:block;font-size:11px;color:#1F2A37;margin-bottom:1px;}
+  .wLink{font-size:8px;font-weight:800;color:#1FA184;text-align:right;margin-top:7px;}
+
+  .assess{background:#fff;border:1px solid #E8EDF0;border-radius:14px;padding:8px 12px;}
+  .arow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #EEF3F1;}
+  .arow:first-child{border-top:none;padding-top:1px;}
+  .arow .t{font-size:10px;font-weight:800;}
+  .arow .d{font-size:8px;color:#8A9692;margin-top:1px;}
+  .arow b{font-size:15px;color:#1FA184;}
+  .arow small{font-size:8px;color:#8A9692;}
+
+  .map{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E8EDF0;border-radius:14px;padding:10px 12px;}
+  .map .ico{width:32px;height:32px;border-radius:10px;background:#E7F8F3;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 32px;}
+  .map .m{flex:1;}
+  .map .t{font-size:11px;font-weight:800;}
+  .map .d{font-size:8px;color:#8A9692;margin-top:1px;}
+  .map .go{font-size:9px;font-weight:800;color:#1FA184;}
+
+  /* B 合并 */
+  .cumHero{background:linear-gradient(135deg,#145A4A,#0F766E);border-radius:20px;padding:14px;color:#fff;}
+  .chTop{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:rgba(255,255,255,.7);}
+  .rankPill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:#FFE3A3;border-radius:999px;padding:4px 7px;font-size:8px;font-weight:800;}
+  .chTime{font-size:25px;font-weight:900;margin:7px 0 1px;}
+  .chTime b{font-size:30px;}
+  .chLabel{font-size:8px;color:rgba(255,255,255,.6);}
+  .chStats{display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.14);margin-top:10px;padding-top:9px;text-align:center;}
+  .chStats b{display:block;font-size:13px;}
+  .chStats span{font-size:8px;color:rgba(255,255,255,.6);}
+  .chFoot{display:flex;justify-content:space-between;font-size:8px;color:#FFE3A3;margin-top:8px;}
+
+  /* C 榜单卡 */
+  .rankCard{background:#fff;border:1px solid #E8EDF0;border-radius:16px;padding:12px;}
+  .rcTop{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;}
+  .rcTop span{font-size:8px;color:#8A9692;font-weight:600;}
+  .rrow{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:9px;}
+  .rrow .medal{width:20px;text-align:center;}
+  .rrow .name{flex:1;font-weight:700;}
+  .rrow .pts{font-size:9px;color:#8A9692;}
+  .rrow.me{background:#E7F8F3;border-radius:8px;padding:7px 8px;margin:2px -8px;}
+  .rrow.me .name{color:#1FA184;font-weight:800;}
+  .rcFoot{display:flex;justify-content:space-between;font-size:8px;color:#8A9692;border-top:1px solid #EEF3F1;margin-top:4px;padding-top:8px;}
+  .rcFoot b{color:#1FA184;}
+
+  .cumStrip{display:flex;justify-content:space-around;background:#F7FBF9;border-radius:13px;padding:9px;text-align:center;}
+  .cumStrip b{display:block;font-size:12px;}
+  .cumStrip span{font-size:8px;color:#9AA6A2;}
+</style>
+</head>
+<body>
+
+<!-- A -->
+<div class="demo">
+  <div class="label">方案 A · 累计 + 榜单条<span>最贴近方案 1，只加一行</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="cumCard">
+        <div class="cumTop"><span>累计学习</span><span>本学期</span></div>
+        <div class="cumStats"><div><b>6h18</b><span>累计时长</span></div><div><b>28天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div></div>
+      </div>
+      <div class="rankBar"><span class="ico">🏆</span><span class="t">学习排行榜</span><span class="n">本周第 8 名 · 超过 72%</span><span class="go">›</span></div>
+
+      <div class="sec"><b>本周学情</b><span>11.04 – 11.10 ⌄</span></div>
+      <div class="weekCard">
+        <div class="wTop"><span>本周掌握率</span><span class="date">切换周 ⌄</span></div>
+        <div class="wMain"><div><div class="n">85%</div><div class="k">比上周 +3%</div></div><div class="spark"><i style="height:42%"></i><i style="height:58%"></i><i style="height:46%"></i><i class="on" style="height:78%"></i><i style="height:55%"></i><i style="height:32%"></i><i style="height:24%"></i></div></div>
+        <div class="wStats"><span><b>5 天</b>学习天数</span><span><b>32</b>新学词</span><span><b>12</b>分钟/天</span></div>
+        <div class="wLink">查看完整报告 ›</div>
+      </div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+
+      <div class="sec"><b>学习地图</b><span>2/6 已通关</span></div>
+      <div class="map"><div class="ico">📚</div><div class="m"><div class="t">Unit 3 · Look at me!</div><div class="d">12 / 32 词 · 进行中</div></div><div class="go">查看 ›</div></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- B -->
+<div class="demo">
+  <div class="label">方案 B · 累计 + 排名合并<span>排行榜变成累计卡的一部分</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="cumHero">
+        <div class="chTop"><span>累计学习 · 本学期</span><span class="rankPill">🏆 班级第 8 名</span></div>
+        <div class="chTime"><b>6</b> 小时 <b>18</b> 分</div>
+        <div class="chLabel">累计学习时长</div>
+        <div class="chStats"><div><b>28 天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div><div><b>128</b><span>累计星星</span></div></div>
+        <div class="chFoot"><span>本周第 8 名</span><span>超过全班 72% ›</span></div>
+      </div>
+
+      <div class="sec"><b>本周学情</b><span>11.04 – 11.10 ⌄</span></div>
+      <div class="weekCard">
+        <div class="wTop"><span>本周掌握率</span><span class="date">切换周 ⌄</span></div>
+        <div class="wMain"><div><div class="n">85%</div><div class="k">比上周 +3%</div></div><div class="spark"><i style="height:42%"></i><i style="height:58%"></i><i style="height:46%"></i><i class="on" style="height:78%"></i><i style="height:55%"></i><i style="height:32%"></i><i style="height:24%"></i></div></div>
+        <div class="wStats"><span><b>5 天</b>学习天数</span><span><b>32</b>新学词</span><span><b>12</b>分钟/天</span></div>
+        <div class="wLink">查看完整报告 ›</div>
+      </div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+
+      <div class="sec"><b>学习地图</b><span>2/6 已通关</span></div>
+      <div class="map"><div class="ico">📚</div><div class="m"><div class="t">Unit 3 · Look at me!</div><div class="d">12 / 32 词 · 进行中</div></div><div class="go">查看 ›</div></div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+<!-- C -->
+<div class="demo">
+  <div class="label">方案 C · 独立榜单卡<span>排行最有存在感</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ 5G ▰</span></div>
+    <div class="view">
+      <div class="topbar"><span>三上 · 人教PEP</span><span>共 7 周</span></div>
+      <h1>学情</h1>
+      <p class="sub">看清每周进步，也看到下一步。</p>
+
+      <div class="cumStrip"><div><b>6h18</b><span>累计时长</span></div><div><b>28天</b><span>累计天数</span></div><div><b>64</b><span>累计学词</span></div></div>
+
+      <div class="sec"><b>学习排行榜</b><span>本周</span></div>
+      <div class="rankCard">
+        <div class="rcTop"><span>班级周榜</span><span>按本周星星</span></div>
+        <div class="rrow"><span class="medal">🥇</span><span class="name">小明</span><span class="pts">156 ⭐</span></div>
+        <div class="rrow"><span class="medal">🥈</span><span class="name">小宇</span><span class="pts">149 ⭐</span></div>
+        <div class="rrow"><span class="medal">🥉</span><span class="name">乐乐</span><span class="pts">140 ⭐</span></div>
+        <div class="rrow me"><span class="medal">8</span><span class="name">我 · 朵朵</span><span class="pts">128 ⭐</span></div>
+        <div class="rcFoot"><span>本周第 8 名</span><b>超过全班 72% ›</b></div>
+      </div>
+
+      <div class="sec"><b>本周学情</b><span>11.04 – 11.10 ⌄</span></div>
+      <div class="weekCard">
+        <div class="wTop"><span>本周掌握率</span><span class="date">切换周 ⌄</span></div>
+        <div class="wMain"><div><div class="n">85%</div><div class="k">比上周 +3%</div></div><div class="spark"><i style="height:42%"></i><i style="height:58%"></i><i style="height:46%"></i><i class="on" style="height:78%"></i><i style="height:55%"></i><i style="height:32%"></i><i style="height:24%"></i></div></div>
+        <div class="wStats"><span><b>5 天</b>学习天数</span><span><b>32</b>新学词</span><span><b>12</b>分钟/天</span></div>
+        <div class="wLink">查看完整报告 ›</div>
+      </div>
+
+      <div class="sec"><b>最近测评</b><span>全部 ›</span></div>
+      <div class="assess">
+        <div class="arow"><div><div class="t">周中小测 · Unit 3</div><div class="d">11.06 · 5 题</div></div><div><b>90</b><small>分</small></div></div>
+        <div class="arow"><div><div class="t">Unit 2 单元测</div><div class="d">11.01 · 已通过</div></div><div><b>85</b><small>分</small></div></div>
+      </div>
+    </div>
+    <div class="nav"><div><span class="ico">🏠</span>今日</div><div><span class="ico">🎯</span>巩固</div><div class="on"><span class="ico">📊</span>学情</div><div><span class="ico">👤</span>我的</div></div>
+  </div>
+</div>
+
+</body>
+</html>
