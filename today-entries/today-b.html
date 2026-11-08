@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>今日 Tab · 方案 B · 教材右栏缩进</title>
+<style>
+  :root{
+    --bg:#FFF8F0;--ink:#2A1F1A;--ink2:#7C6A60;--ink3:#B3A298;
+    --line:rgba(122,86,62,.12);--orange:#FF7A45;--odeep:#E8590C;--osoft:#FFF0E6;
+    --mint:#1FBFA4;--mdeep:#0E9C86;--amber:#F0A500;
+    --shadow:0 6px 18px rgba(122,86,62,.07);
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);
+    background:radial-gradient(900px 600px at 8% 0%,#FFE3D2 0%,transparent 55%),
+      radial-gradient(900px 700px at 96% 100%,#DDF7EF 0%,transparent 55%),var(--bg);
+    min-height:100dvh;padding:30px 16px 70px}
+  h1,h2,h3,p{margin:0}
+  .head{max-width:900px;margin:0 auto 18px}
+  .head .kick{font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--odeep)}
+  .head h1{font-size:24px;letter-spacing:-.6px;margin:7px 0 6px}
+  .head p{font-size:11.5px;line-height:1.7;color:var(--ink2);max-width:720px}
+  .head b{color:var(--ink)}
+  .picks{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .picks span{font-size:10px;font-weight:900;color:var(--ink2);background:#fff;border-radius:99px;padding:5px 10px;
+    box-shadow:0 4px 12px rgba(180,140,100,.1)}
+  .picks b{color:var(--odeep)}
+
+  .sec{max-width:900px;margin:0 auto 28px}
+  .sec .t{display:flex;align-items:baseline;gap:8px;margin:0 0 10px 2px;flex-wrap:wrap}
+  .sec .t b{font-size:14px;letter-spacing:-.2px}
+  .sec .t em{font-style:normal;font-size:10.5px;color:var(--ink3);font-weight:700;margin-left:auto}
+  .grid{display:flex;flex-wrap:wrap;gap:16px 14px;justify-content:center}
+
+  .demo{width:286px}
+  .tag{font-size:9.5px;font-weight:900;color:var(--ink3);margin:0 0 5px 2px;display:flex;align-items:center;gap:6px}
+  .tag b{color:var(--odeep)}
+  .replay{margin-left:auto;border:0;font-family:inherit;font-size:8.5px;font-weight:900;color:var(--odeep);
+    background:#fff;border-radius:99px;padding:3px 8px;box-shadow:0 3px 8px rgba(180,140,100,.16);cursor:pointer}
+  .replay:active{transform:scale(.96)}
+
+  .phone{width:286px;height:580px;background:#111;border-radius:38px;padding:6px;
+    box-shadow:0 18px 40px rgba(90,50,20,.18),inset 0 0 0 1px rgba(255,255,255,.08)}
+  .shell{position:relative;width:100%;height:100%;border-radius:33px;overflow:hidden;background:var(--bg);
+    display:flex;flex-direction:column}
+  .sbar{flex:none;height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:8px;font-weight:800}
+  .island{position:absolute;left:50%;top:5px;transform:translateX(-50%);width:58px;height:16px;border-radius:99px;background:#0B0B0C}
+  .scr{flex:1;padding:0 10px 58px;overflow:hidden}
+  .ptitle{text-align:center;font-size:10px;font-weight:900;padding:1px 0 6px}
+  .tabs{position:absolute;left:0;right:0;bottom:0;height:48px;background:rgba(255,255,255,.95);border-top:1px solid var(--line);
+    display:flex;justify-content:space-around;align-items:flex-start;padding:5px 6px;z-index:20}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink3);font-size:6px;font-weight:800}
+  .tab svg{width:14px;height:14px}
+  .tab.active{color:var(--odeep)}
+  .tab.active::after{content:"";width:2.6px;height:2.6px;border-radius:50%;background:var(--orange)}
+
+  /* ================= 学习计划（参考站 394 原尺寸，zoom 到 266） ================= */
+  .planwrap{margin-bottom:6px}
+  .plan{position:relative;width:394px;zoom:.6447;border-radius:22px;padding:13px 13px 15px;overflow:hidden;
+    background:linear-gradient(160deg,#FFF8EE 0%,#FFEFDC 50%,#FFE6CC 100%);
+    box-shadow:0 9px 20px rgba(200,140,90,.11)}
+  .plan .top{display:flex;align-items:center;gap:7px;padding:2px 3px 12px}
+  .plan .ico{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:12px;flex:none;background:#fff;
+    box-shadow:0 2px 6px rgba(180,140,100,.16)}
+  .plan .top h2{font-size:14.7px;font-weight:900;letter-spacing:-.2px}
+  .plan .banner{font-size:8.5px;font-weight:900;color:#fff;border-radius:6px;padding:4.5px 7px;
+    background:linear-gradient(180deg,#FF8A4C,#F2601F);box-shadow:0 3px 7px rgba(220,90,30,.24);white-space:nowrap}
+  .plan .ribbon{position:absolute;right:0;top:0;height:33px;width:88px;
+    background:linear-gradient(135deg,#FFDD7A,#FFB020);border-bottom-left-radius:26px;border-top-right-radius:22px}
+  .plan .ribbon span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:9.4px;font-weight:900;color:#6B3F00;letter-spacing:.2px}
+  .plan .inner{background:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 20px rgba(180,140,100,.10)}
+  .plan .book{display:flex;gap:14px;align-items:stretch}
+  .plan .cover{position:relative;flex:none;width:88px;border-radius:8px;overflow:hidden;
+    box-shadow:0 12px 24px rgba(150,95,45,.26),inset 0 0 0 1px rgba(255,255,255,.55)}
+  .plan .cover::after{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;
+    background:linear-gradient(90deg,rgba(120,60,20,.26),rgba(120,60,20,0))}
+  .plan .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .plan .bi{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+  .plan .txt h3{font-size:21px;line-height:1.15;letter-spacing:-.6px;margin:2px 0 0;padding-right:78px}
+  .plan .meta{font-size:10.5px;font-weight:800;color:#9AA79C;margin-top:21px;letter-spacing:.1px;
+    display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+  .plan .meta i{font-style:normal;color:#A7B0A9;font-weight:800}
+  .plan .meta em{font-style:normal;color:#DCD2C8;font-weight:900}
+  .plan .meta b{color:var(--ink);font-weight:900}
+  .plan .link{position:absolute;top:0;right:0;font-size:9px;font-weight:900;color:#0E9C86;background:#E9FBF6;
+    border-radius:999px;padding:5px 9px;white-space:nowrap}
+  .plan .footrow{display:flex;align-items:baseline;gap:12px}
+  .plan .footrow div{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+  .plan .footrow b{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
+  .plan .footrow div > span{font-size:9.5px;font-weight:800;color:#A9A19A}
+  .plan .stats3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;padding-top:14px;border-top:1px solid #F6EDE5}
+  .plan .stats3 > div{display:flex;flex-direction:column;gap:3px;align-items:center;text-align:center}
+  .plan .stats3 b{font-size:15px;font-weight:900;letter-spacing:-.3px;font-variant-numeric:tabular-nums}
+  .plan .stats3 b small{font-size:8px;font-weight:800;color:#B3A298;margin-left:2px}
+  .plan .stats3 div > span{font-size:9px;font-weight:800;color:#A9A19A}
+  .plan .barrow{display:flex;align-items:center;gap:11px}
+  .plan .bar{position:relative;flex:1;height:10px;border-radius:999px;background:#F4EDE5;
+    box-shadow:inset 0 1px 2px rgba(140,100,70,.10)}
+  .plan .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;overflow:hidden;
+    background:linear-gradient(90deg,#FFB07A,#FF7A45 55%,#FF6A2B);box-shadow:0 2px 7px rgba(232,89,12,.22);
+    transition:width .6s cubic-bezier(.4,0,.2,1),opacity .25s,box-shadow .3s}
+  .plan.running .fill{transition:none}
+  .plan.done .fill{box-shadow:0 0 0 3px rgba(255,122,69,.13),0 3px 12px rgba(232,89,12,.35)}
+  .plan .fill::after{content:"";position:absolute;right:0;top:0;bottom:0;width:20px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.5))}
+  .plan .inbar{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:2px;
+    color:#fff;z-index:3;font-size:9px;font-weight:900;text-shadow:0 1px 2px rgba(180,70,20,.35);white-space:nowrap}
+  .plan .inbar b{font-size:10.5px;font-weight:900;font-variant-numeric:tabular-nums}
+  .plan .inbar i{font-style:normal;font-size:7px;font-weight:900;opacity:.85}
+  .plan .gate{position:absolute;right:1px;top:-2px;bottom:-2px;width:7px;border-radius:3px;z-index:4;opacity:.9;
+    background-image:
+      linear-gradient(45deg,#FF6A2B 25%,transparent 25%,transparent 75%,#FF6A2B 75%),
+      linear-gradient(45deg,#FF6A2B 25%,#fff 25%,#fff 75%,#FF6A2B 75%);
+    background-size:7px 7px;background-position:0 0,3.5px 3.5px;
+    transition:transform .4s cubic-bezier(.2,1.4,.4,1),box-shadow .4s,opacity .3s}
+  .plan.done .gate{transform:scaleY(1.22) scaleX(1.15);box-shadow:0 0 0 3px rgba(255,122,69,.16);opacity:1}
+  .plan .rocket{position:absolute;top:50%;width:22px;height:22px;line-height:0;z-index:6;
+    transform:translate(-70%,-128%) rotate(45deg);filter:drop-shadow(0 4px 5px rgba(200,100,50,.32));
+    transition:left .6s cubic-bezier(.4,0,.2,1),opacity .25s,transform .3s}
+  .plan .rocket svg{display:block;width:100%;height:100%}
+  .plan.running .rocket{animation:rwob .78s ease-in-out infinite}
+  @keyframes rwob{0%,100%{transform:translate(-70%,-128%) rotate(45deg)}50%{transform:translate(-70%,-138%) rotate(50deg)}}
+  .plan.done .rocket{transform:translate(-70%,-128%) rotate(45deg) scale(1.14)}
+  .plan .finish{flex:none;line-height:1.15}
+  .plan .finish b{display:block;font-size:11.5px;font-weight:900;color:#7C6A60;white-space:nowrap;transition:color .3s}
+  .plan.done .finish b{color:var(--mdeep)}
+  .plan .streaks{position:absolute;inset:0;opacity:0;transition:opacity .3s;pointer-events:none}
+  .plan.running .streaks{opacity:1}
+  .plan .streaks i{position:absolute;height:1.5px;border-radius:2px;
+    background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.9));animation:streak .5s linear infinite}
+  .plan .streaks i:nth-child(1){right:14px;top:26%;width:22px}
+  .plan .streaks i:nth-child(2){right:12px;top:52%;width:34px;animation-delay:.12s}
+  .plan .streaks i:nth-child(3){right:16px;top:74%;width:16px;animation-delay:.24s}
+  @keyframes streak{0%{transform:translateX(0) scaleX(1);opacity:0}30%{opacity:.9}100%{transform:translateX(-60px) scaleX(.3);opacity:0}}
+  .plan .ring{position:absolute;right:0;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;
+    border:2px solid rgba(255,122,69,.8);opacity:0;z-index:5}
+  .plan.done .ring{animation:ringOut .8s ease-out}
+  @keyframes ringOut{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(3.6)}}
+  .plan .burst{position:absolute;right:0;top:50%;width:0;height:0;pointer-events:none;z-index:6}
+  .plan .burst i{position:absolute;left:0;top:0;width:8px;height:8px;border-radius:2px;opacity:0}
+  .plan.done .burst i{animation:fly .95s cubic-bezier(.15,.7,.3,1) forwards}
+  @keyframes fly{0%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}
+    100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(.35) rotate(220deg)}}
+  .plan .stamp{position:absolute;left:6px;bottom:8px;background:rgba(255,255,255,.96);color:var(--odeep);
+    font-size:8px;font-weight:900;border-radius:99px;padding:3px 7px;box-shadow:0 3px 8px rgba(150,90,50,.25);
+    opacity:0;transform:scale(.6) rotate(-6deg);transition:opacity .25s,transform .35s cubic-bezier(.2,.9,.3,1.4);z-index:4}
+  .plan.done .stamp{opacity:1;transform:scale(1) rotate(-6deg)}
+  .plan.hit{animation:hit .5s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes hit{10%{transform:translateY(-3px)}35%{transform:translateY(1px)}60%{transform:translateY(-1px)}100%{transform:translateY(0)}}
+  .plan.resetting .fill,.plan.resetting .rocket,.plan.resetting .inbar{opacity:.25}
+  .plan .num.flip{animation:numFlip .3s ease both}
+  @keyframes numFlip{0%{opacity:0;transform:translateY(3px)}100%{opacity:1;transform:translateY(0)}}
+  .plan.a .barrow{margin-top:28px}
+  .plan.b .barrow{margin-top:22px}
+
+  /* ================= 今日打卡（1 套） ================= */
+  .ck{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);padding:8px 0 7px;margin-bottom:6px;position:relative;overflow:hidden}
+  .ck-head{display:flex;align-items:center;justify-content:space-between;padding:0 9px}
+  .ck-title{display:flex;align-items:center;gap:5px}
+  .ck-ico{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:9px;background:var(--osoft)}
+  .ck-title h2{font-size:9.5px;font-weight:900}
+  .ck .entry{font-size:6px;font-weight:900;color:var(--odeep)}
+  .ck .sub{font-size:6px;font-weight:800;color:var(--ink3);padding:3px 9px 0}
+  .ck .sub b{color:var(--odeep);font-weight:900;font-size:7px}
+  .ck .sub i{font-style:normal;color:#D8CCC2;margin:0 3px}
+  .ck .sub em{font-style:normal;color:#B3541E;font-weight:900}
+  .subem{display:inline-block}
+  .subem.swap{animation:subIn .5s cubic-bezier(.2,.8,.3,1.2) both}
+  @keyframes subIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
+  .track{display:flex;gap:3px;align-items:flex-end;justify-content:center;padding:13px 9px 1px}
+  .day{flex:none;width:15px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+  .day .c{height:38px;width:100%;display:flex;align-items:flex-end}
+  .day .bar2{width:100%;border-radius:4px;background:linear-gradient(180deg,#FFD9C6,#FFC7AE)}
+  .day .ghost{width:100%;height:46%;border-radius:4px;border:1px dashed #E7D8CB;background:#FFFCFA}
+  .day .n{font-size:5px;font-weight:800;color:#C9B9AE;line-height:1}
+  .day.past .n{color:var(--ink3)}
+  .day.future{width:10px}
+  .day.future .n{color:#E0D5CC;font-size:4.5px}
+  .missbox{width:100%;height:46%;border-radius:4px;background:#EDE3DA;display:grid;place-items:center;
+    font-size:5px;font-weight:900;color:#A8968A}
+  .day.today{width:20px}
+  .day.today .c{height:46px}
+  .day.today .n{color:#C2410C;font-weight:900;font-size:5.5px}
+  .target{width:100%;height:100%;border-radius:5px;position:relative;
+    box-shadow:inset 0 0 0 1.4px #E8590C,0 0 0 2px rgba(232,89,12,.10);
+    background:repeating-linear-gradient(135deg,#FFF3EA,#FFF3EA 3px,#FFFCF8 3px,#FFFCF8 6px);
+    display:flex;align-items:flex-end;justify-content:center;padding:1.5px}
+  .fill2{width:100%;border-radius:3px;background:#FF6A2B}
+  .badge{position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);
+    background:var(--amber);color:#fff;font-size:5px;font-weight:900;border-radius:99px;padding:1.5px 4px;white-space:nowrap;z-index:5}
+  .badge::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
+    border:2px solid transparent;border-top-color:var(--amber)}
+  .badge.done{background:var(--odeep)}
+  .badge.done::after{border-top-color:var(--odeep)}
+  .halo{position:absolute;left:50%;top:42%;width:100%;height:100%;transform:translate(-50%,-50%);
+    border-radius:7px;border:2px solid rgba(255,122,69,.62);pointer-events:none}
+  .halo.a{animation:ripple 1.8s cubic-bezier(.3,.6,.4,1) infinite}
+  .halo.b{animation:ripple 1.8s .55s cubic-bezier(.3,.6,.4,1) infinite}
+  .halo.static{left:-3px;top:-3px;width:auto;height:auto;transform:none;border:1px solid rgba(255,122,69,.22);animation:none}
+  @keyframes ripple{0%{transform:translate(-50%,-50%) scale(.98);opacity:.75}55%{opacity:.22}100%{transform:translate(-50%,-50%) scale(1.2);opacity:0}}
+  .v-none .target{animation:breathe 1.8s ease-in-out infinite;transform-origin:center bottom}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.04)}}
+  .v-none .badge{animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translate(-50%,0)}45%{transform:translate(-50%,-2.5px)}}
+  .tapdot{position:absolute;left:50%;bottom:-4px;width:3px;height:3px;border-radius:50%;background:#FFB79B;
+    animation:dot 1.8s ease-in-out infinite}
+  @keyframes dot{0%,100%{opacity:.25}50%{opacity:.9}}
+  .v-half .fill2{animation:fill2 4.5s cubic-bezier(.34,1.4,.64,1) infinite}
+  @keyframes fill2{0%,10%{height:38%}22%,40%{height:50%}52%,70%{height:62%}82%,90%{height:50%}100%{height:38%}}
+  .feeddot{position:absolute;left:50%;top:-5px;width:4px;height:4px;margin-left:-2px;border-radius:50%;
+    background:#E8590C;opacity:0;z-index:6;animation:chip 2.25s linear infinite}
+  .feeddot.b{animation-delay:1.35s}
+  @keyframes chip{0%{opacity:0;transform:translateY(-4px)}10%{opacity:1}34%{opacity:1;transform:translateY(18px)}40%{opacity:0;transform:translateY(22px)}100%{opacity:0}}
+  .v-done .fill2{height:38%}
+  .v-done.playing .fill2{animation:fillOnce 1.2s cubic-bezier(.3,.7,.3,1) forwards}
+  @keyframes fillOnce{0%{height:38%}58%{height:105%}76%{height:97%}100%{height:100%}}
+  .flash{position:absolute;inset:1.5px;border-radius:3px;background:#FFF;opacity:0;pointer-events:none;z-index:4}
+  .v-done.playing .flash{animation:flashOnce 1.2s ease-out forwards}
+  @keyframes flashOnce{0%,54%{opacity:0}66%{opacity:.6}100%{opacity:0}}
+  .burstc{position:absolute;inset:0;pointer-events:none;z-index:7}
+  .burstc i{position:absolute;left:50%;top:24%;width:3px;height:5px;border-radius:1px;opacity:0;background:#FFC53D}
+  .burstc i:nth-child(2){background:#FF7A45}
+  .burstc i:nth-child(3){background:#7FE3CD}
+  .v-done.playing .burstc i{animation:burstOnce 1.2s ease-out forwards}
+  .v-done.playing .burstc i:nth-child(2){animation-delay:.06s}
+  .v-done.playing .burstc i:nth-child(3){animation-delay:.12s}
+  @keyframes burstOnce{0%,50%{opacity:0;transform:translate(0,0) rotate(0)}58%{opacity:1}92%{opacity:0;transform:translate(var(--bx),var(--by)) rotate(200deg)}100%{opacity:0}}
+  .v-static .fill2{height:100%;background:linear-gradient(180deg,#FF7A45,#F0602A)}
+
+  /* ================= 今日任务（方案 B · 一直动） ================= */
+  .task{background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px;
+    box-shadow:0 8px 18px rgba(122,86,62,.07);position:relative}
+  .task .th{display:flex;align-items:center;gap:4px;margin-bottom:7px}
+  .task .ti{width:18px;height:18px;border-radius:6px;display:grid;place-items:center;font-size:9px;background:var(--osoft);flex:none}
+  .task .th h2{font-size:9.5px;font-weight:900;letter-spacing:-.1px}
+  .task .th .sp{flex:1}
+  .task .mchip{font-size:5.5px;font-weight:900;border-radius:99px;padding:2.5px 5px;background:var(--osoft);color:var(--odeep);white-space:nowrap}
+  .task .mchip.ok{background:#E9FBF6;color:var(--mdeep)}
+  .task .rows{display:flex;flex-direction:column;gap:5px}
+  .task .rw{display:flex;align-items:center;gap:5px;padding:5px 6px;border-radius:9px}
+  .task .rw.new{background:linear-gradient(135deg,#FFFBEA,#FFF2C9)}
+  .task .rw.rev{background:linear-gradient(135deg,#F0FBF7,#DDF7ED)}
+  .task .dot{width:5px;height:5px;border-radius:50%;background:var(--amber);flex:none}
+  .task .rw.rev .dot{background:var(--mint)}
+  .task .info{flex:1;min-width:0}
+  .task .tt{font-size:6px;font-weight:900;color:#8A5A00;line-height:1.1;display:flex;align-items:center;gap:3px}
+  .task .rw.rev .tt{color:var(--mdeep)}
+  .task .pb{height:3px;border-radius:99px;background:rgba(255,255,255,.95);margin-top:3px;overflow:hidden}
+  .task .pb i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#FFC06A,#FF6A2B)}
+  .task .rw.rev .pb i{background:linear-gradient(90deg,#7FE3CD,#12A78F)}
+  .task .num{font-size:7px;font-weight:900;min-width:22px;text-align:right;font-variant-numeric:tabular-nums}
+  .task .num span{font-size:5.5px;color:#A9A19A;font-weight:800}
+  .task .go{position:relative;overflow:hidden;flex:none;height:20px;padding:0 7px;border-radius:99px;
+    font-size:5.5px;font-weight:900;border:0;font-family:inherit;display:inline-flex;align-items:center;gap:2px;
+    white-space:nowrap;will-change:transform}
+  .task .rw.new .go,.task .rw.rev .go.mint{height:24px;padding:0 10px;font-size:6.5px}
+  .task .go.pri{background:linear-gradient(180deg,#FF8A4C,#F2601F);color:#fff;box-shadow:0 3px 8px rgba(232,89,12,.26)}
+  .task .go.mint{background:linear-gradient(180deg,#2BD0B4,#12A78F);color:#fff;box-shadow:0 3px 8px rgba(20,160,140,.24)}
+  .task .go.ghost{background:#fff;color:var(--mdeep);border:1px solid #BEEFE4;box-shadow:none}
+  .task .go.off{background:#F1F5F2;color:#8AA494;box-shadow:none}
+  .task .go .gl,.task .go .gar{position:relative;z-index:2;display:inline-flex;align-items:center}
+  .task .go .gar{font-size:8px;margin-left:1px}
+  .task.beat .go.pri{animation:beatO 1.8s cubic-bezier(.4,0,.3,1) infinite}
+  @keyframes beatO{
+    0%,100%{transform:scale(1);box-shadow:0 3px 8px rgba(232,89,12,.26),0 0 0 0 rgba(255,122,69,.34)}
+    46%{transform:scale(1.06);box-shadow:0 9px 20px rgba(232,89,12,.44),0 0 0 8px rgba(255,122,69,0)}
+    72%{transform:scale(1.015)}
+  }
+  .task.beat .go.mint{animation:beatM 1.8s cubic-bezier(.4,0,.3,1) infinite}
+  @keyframes beatM{
+    0%,100%{transform:scale(1);box-shadow:0 3px 8px rgba(20,160,140,.24),0 0 0 0 rgba(43,208,180,.34)}
+    46%{transform:scale(1.06);box-shadow:0 9px 20px rgba(20,160,140,.42),0 0 0 8px rgba(43,208,180,0)}
+    72%{transform:scale(1.015)}
+  }
+  .task.beat .go.pri::after,.task.beat .go.mint::after{content:"";position:absolute;top:0;bottom:0;width:24px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.62),transparent);
+    transform:translateX(-26px);animation:sweep2 2.4s .5s ease-in-out infinite;z-index:1}
+  @keyframes sweep2{0%{transform:translateX(-26px)}34%,100%{transform:translateX(150px)}}
+  .task.beat .go .gar{animation:nudge 1.8s ease-in-out infinite}
+  @keyframes nudge{0%,100%{transform:translateX(0)}34%{transform:translateX(3px)}60%{transform:translateX(0)}}
+  .task .pb i{animation:grow .9s cubic-bezier(.3,.7,.3,1) both}
+  @keyframes grow{from{width:0}}
+  .task.revfin .rw.rev .pb i{animation:revFill 1s .25s cubic-bezier(.3,.7,.3,1) both}
+  @keyframes revFill{from{width:0}}
+  .task .okc{font-style:normal;color:var(--mdeep)}
+  .task .okc.pop{animation:pop .5s .95s cubic-bezier(.2,.9,.3,1.5) both}
+  @keyframes pop{0%{opacity:0;transform:scale(.6)}60%{transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+  .task .mchip.ok{animation:pop .5s .4s cubic-bezier(.2,.9,.3,1.5) both}
+
+  .noanim *{animation:none !important;transition:none !important}
+
+  /* 规格说明 */
+  .spec{max-width:900px;margin:6px auto 0;background:#fff;border-radius:18px;padding:16px 20px 10px;
+    box-shadow:0 8px 20px rgba(180,140,100,.08)}
+  .spec .st{font-size:10.5px;font-weight:900;letter-spacing:.4px;color:var(--odeep);margin-bottom:6px}
+  .spec table{width:100%;border-collapse:collapse}
+  .spec td{font-size:11px;line-height:1.7;padding:7px 8px;border-bottom:1px solid #F6EDE5;vertical-align:top;color:var(--ink2)}
+  .spec tr:last-child td{border-bottom:0}
+  .spec td:first-child{width:86px;font-weight:900;color:var(--ink);white-space:nowrap}
+  .spec b{color:var(--ink)}
+  button[data-entry]{border:0;font-family:inherit;text-align:left;cursor:pointer}
+  button.entry{padding:0;background:transparent}
+  button[data-entry]:focus-visible,#entry-back:focus-visible{outline:2px solid #168974;outline-offset:2px}
+  .jump{display:inline-block;color:var(--odeep);font-weight:800;padding:5px 2px;font-size:11px}
+  #entry-dialog{color:var(--ink);font-family:var(--font);width:min(100% - 24px,455px);padding:0;
+    border:1px solid #f0ddcd;border-radius:24px;background:#fffaf5;max-height:min(88dvh,830px);box-shadow:0 20px 80px #4a2b2455}
+  #entry-dialog::backdrop{background:#39231975}
+  .entry-head{position:sticky;top:0;z-index:2;display:grid;grid-template-columns:90px 1fr 90px;align-items:center;padding:10px 14px;
+    min-height:60px;background:#fffaf5;border-bottom:1px solid #eddfd4}
+  #entry-back{justify-self:start;border:0;border-radius:99px;background:#ffecdc;color:#9f4118;padding:9px 10px;font:800 12px var(--font);cursor:pointer}
+  #entry-title{text-align:center;font-size:17px}
+  #entry-body{min-height:160px}
+  .embedded-entry{width:100%;height:min(68dvh,700px);border:0;display:block;background:#fffaf5}
+  .entry-panel{padding:16px;display:grid;gap:12px}
+  .entry-panel p{color:#795e51;font-size:12px;line-height:1.65}
+  .entry-card{border:1px solid #f0e3d8;background:#fff;border-radius:16px;padding:13px}
+  .entry-card h3{font-size:14px;margin-bottom:8px}
+  .entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .entry-choice,.entry-primary,.entry-secondary{border:1px solid #ead9cc;border-radius:10px;background:#fffaf4;color:#754c39;font:800 12px var(--font);padding:10px 6px;cursor:pointer}
+  .entry-choice[aria-pressed=true]{background:#fff0dd;color:#a84016;border-color:#f49d6a}
+  .entry-primary{border-color:transparent;background:#c95220;color:#fff;padding:11px 16px}
+  .entry-primary:disabled{opacity:.5;cursor:default}
+  .entry-secondary{background:#e9f8f3;border-color:#d7eee5;color:#087c69;padding:10px 12px}
+  .entry-choice:focus-visible,.entry-primary:focus-visible,.entry-secondary:focus-visible{outline:2px solid #168974;outline-offset:2px}
+  .entry-progress{height:9px;border-radius:9px;overflow:hidden;background:#f5e8dc;margin:12px 0}
+  .entry-progress i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#ffc285,#ef692d)}
+  .entry-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0 0;text-align:center}
+  .entry-metrics div{padding:9px 4px;background:#fff4e9;border-radius:10px}.entry-metrics b{display:block;font-size:21px}
+  .entry-metrics small,.entry-list small{color:#795e51;font-size:11px}
+  .entry-list{display:grid;gap:7px;margin:0;padding:0;list-style:none}
+  .entry-list li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #f2e8df;font-size:12px}
+  .entry-list li:last-child{border-bottom:0}.entry-list strong{color:#087c69}
+  .entry-panel [hidden]{display:none}
+  .entry-note{font-size:11px;color:#815841;background:#fff1e1;padding:8px 10px;border-radius:9px}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="kick">TODAY TAB · FINAL</div>
+  <h1>今日 Tab · 方案 B · 教材右栏缩进</h1>
+  <p>每套包含 5 个学习进度。点手机画面里的「切换教材」「查看进度」「打卡记录」打开二级页交互演示。</p>
+  <div class="picks"><a class="jump" href="#static">看静态 ↓</a><a class="jump" href="#motion">看动态 ↓</a></div>
+</div>
+
+<main id="app"></main>
+<dialog id="entry-dialog" aria-labelledby="entry-title">
+  <header class="entry-head"><button type="button" id="entry-back">‹ 返回今日</button><h2 id="entry-title"></h2></header>
+  <div id="entry-body"></div>
+</dialog>
+
+<div class="spec">
+  <div class="st">规格与动效约定</div>
+  <table>
+    <tr><td>状态</td><td>
+      ① 未开始（0 / 0 / 0，计划 0）② 学到一半（计划 50，今日新学 2/5）
+      ③ 新学完成（今日 5/5，打卡成立，复习 0/3）④ 今天全部完成（新学 5/5 + 复习 3/3，计划仍在中途）
+      ⑤ 整本学完（计划 118/118，压线盖章）
+    </td></tr>
+    <tr><td>静态组</td><td>所有动画与过渡关闭，条停在终值。用来确认版式、数字、颜色和文案。</td></tr>
+    <tr><td>动态组</td><td>
+      ① 打卡格招手（呼吸 + 双波纹）+ 任务按钮一直动；
+      ② 计划条 0 → 42% 补播（0.8s，不撒花）+ 打卡喂词 + 按钮一直动；
+      ③ 打卡格冲满 + 闪白 + 撒花 + 徽标弹出，任务主按钮换成绿色「复习 3」；
+      ④ 复习条冲满 + 勾弹出，主按钮转「今天已完成」；
+      ⑤ 计划条 42% → 118 冲刺 2.6s（火箭抖动 + 速度线 + 数字滚动 + 终点旗发光）+ 压线盖章。
+    </td></tr>
+    <tr><td>播放规则</td><td>进入视口才播；同一天只播 1 次；点任意手机可重播；完成态播完停在静态；减少动态效果时全停。</td></tr>
+    <tr><td>打卡定义</td><td>新学 5/5 即打卡（状态③）；复习是第二笔，不断签。</td></tr>
+  </table>
+</div>
+
+<script>
+  const COVER = "data:image/svg+xml;utf8," + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 156">
+      <defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFEBCB"/><stop offset="1" stop-color="#E9944F"/></linearGradient></defs>
+      <rect width="112" height="156" fill="url(#s)"/>
+      <circle cx="86" cy="34" r="13" fill="#FFD27A" opacity=".9"/>
+      <path d="M0 104 Q30 78 58 104 T112 98 V156 H0Z" fill="#DC8244"/>
+      <path d="M0 124 Q34 104 64 124 T112 118 V156 H0Z" fill="#B9612C"/>
+      <rect x="18" y="16" width="74" height="44" rx="7" fill="#FFFBF4" opacity=".96"/>
+      <text x="55" y="36" font-size="17" font-weight="bold" fill="#8A4A18" text-anchor="middle" font-family="PingFang SC,sans-serif">英语</text>
+      <text x="55" y="50" font-size="7.5" fill="#A9765A" text-anchor="middle" font-family="PingFang SC,sans-serif">五年级上册</text>
+    </svg>`);
+
+  const ROCKET = `<svg viewBox="0 0 24 24"><path d="M12 2.2c2.7 2.3 4.1 5.5 4.1 8.9 0 2-.5 3.9-1.5 5.5l-2.6 1.5-2.6-1.5A11.2 11.2 0 0 1 7.9 11c0-3.4 1.4-6.6 4.1-8.9z" fill="#fff" stroke="#FF6A2B" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="9.3" r="2.2" fill="#FFD27A" stroke="#FF6A2B" stroke-width="1.2"/><path d="M7.9 14.2 5.4 17.9l3.4-1.3z" fill="#FF7A45"/><path d="M16.1 14.2l2.5 3.7-3.4-1.3z" fill="#FF7A45"/><path d="M12 18.6c1.1 1.3 1.5 2.8 0 4.2-1.5-1.4-1.1-2.9 0-4.2z" fill="#FFB020"/></svg>`;
+
+  const PLAN_STATE = {
+    p0:   { p:0,     v:0,   st:[0,0,0],      date:'预计 12/02' },
+    p50:  { p:42.37, v:50,  st:[50,32,18],   date:'预计 11/28' },
+    p100: { p:100,   v:118, st:[118,104,36], date:'已完成' }
+  };
+  const TOTAL_NEW = 5, TOTAL_REV = 3;
+
+  const SCREENS = [
+    { k:'s1', tag:'① 未开始',          plan:'p0',   ck:'none',   n:0, r:0, sub:'今天还没开始，来开个头',     motion:'none' },
+    { k:'s2', tag:'② 学到一半',        plan:'p50',  ck:'part',   n:2, r:0, sub:'还差 3 个词就打卡',         motion:'fill' },
+    { k:'s3', tag:'③ 新学完成 · 打卡', plan:'p50',  ck:'done',   n:5, r:0, sub:'已打卡 · 复习还能再来一笔',  motion:'burst' },
+    { k:'s4', tag:'④ 今天全部完成',    plan:'p50',  ck:'static', n:5, r:3, sub:'新学复习都完成，很厉害',     motion:'revfin' },
+    { k:'s5', tag:'⑤ 整本学完',        plan:'p100', ck:'static', n:5, r:3, sub:'整本学完了，很厉害',        motion:'sprint' }
+  ];
+
+  /* ---------- 学习计划 ---------- */
+  const PLAN = (variant, pkey, dynamic, motion) => {
+    const d = PLAN_STATE[pkey];
+    const finished = d.p >= 100;
+    let pct = d.p, num = d.v, play = '';
+    if (dynamic && motion === 'fill'){ pct = 0; num = 0; play = 'fill'; }
+    if (dynamic && motion === 'sprint'){ pct = 42.37; num = 50; play = 'sprint'; }
+    const isDone = finished && !play;
+    const dateTxt = isDone ? '已完成' : d.date;
+    const st = (dynamic && motion === 'fill') ? [0, d.st[1], d.st[2]] : d.st;
+
+    const barrow = `
+      <div class="barrow">
+        <div class="bar">
+          <div class="fill" style="width:${pct}%" data-fill>
+            <span class="inbar"><b data-count>${num}</b><i>词</i></span>
+            <span class="streaks"><i></i><i></i><i></i></span>
+          </div>
+          <div class="gate"></div>
+          <div class="rocket" style="left:${pct}%" data-rocket>${ROCKET}</div>
+          <span class="ring"></span>
+          <div class="burst" data-burst></div>
+        </div>
+        <div class="finish"><b data-finish>${dateTxt}</b></div>
+      </div>`;
+
+    const stats = (cls) => `
+      <div class="${cls}">
+        <div><b><span class="num" data-stat="0">${st[0]}</span>${cls === 'stats3' ? '<small>词</small>' : ''}</b><span>已学</span></div>
+        <div><b><span class="num" data-stat="1">${st[1]}</span>${cls === 'stats3' ? '<small>词</small>' : ''}</b><span>已复习</span></div>
+        <div><b><span class="num" data-stat="2">${st[2]}</span>${cls === 'stats3' ? '<small>词</small>' : ''}</b><span>已掌握</span></div>
+      </div>`;
+
+    return `<div class="planwrap">
+      <div class="plan ${variant} ${isDone ? 'done' : ''}" ${play ? `data-play="${play}"` : ''}>
+        <button type="button" class="ribbon" data-entry="textbook"><span>切换教材</span></button>
+        <div class="top"><div class="ico">🗓️</div><h2>计划学习</h2><span class="banner">艾宾浩斯记忆法</span></div>
+        <div class="inner">
+          <div class="book">
+            <div class="cover"><img src="${COVER}" alt="封面"><span class="stamp">全部完成</span></div>
+            <div class="bi">
+              <button type="button" class="link" data-entry="progress">查看进度 ›</button>
+              <div class="txt">
+                <h3>五年级上册</h3>
+                <div class="meta"><i>人教PEP版</i><em>·</em><b>2–6 单元</b><em>·</em>共 <b>118</b> 词</div>
+              </div>
+              ${variant === 'a' ? stats('footrow') : barrow}
+            </div>
+          </div>
+          ${variant === 'a' ? barrow : stats('stats3')}
+        </div>
+      </div>
+    </div>`;
+  };
+
+  /* ---------- 今日打卡 ---------- */
+  const CHECKIN = (ck, sub, dynamic, remaining) => {
+    let today = '';
+    if (ck === 'none'){
+      today = `<div class="halo static"></div><div class="halo a"></div><div class="halo b"></div>
+               <div class="target"><div class="badge">开始</div></div><div class="tapdot"></div>`;
+    } else if (ck === 'part'){
+      today = `<div class="target"><div class="fill2" style="height:38%"></div><div class="badge">还差 ${remaining} 词</div>
+               <div class="feeddot"></div><div class="feeddot b"></div></div>`;
+    } else if (ck === 'static'){
+      today = `<div class="target"><div class="fill2"></div><div class="badge done">已打卡 ✓</div></div>`;
+    } else {
+      today = `<div class="target"><div class="fill2" style="${dynamic ? '' : 'height:100%'}"></div><div class="flash"></div>
+               <div class="burstc"><i style="--bx:-8px;--by:-12px"></i><i style="--bx:7px;--by:-14px"></i><i style="--bx:-11px;--by:-2px"></i></div>
+               <div class="badge done">已打卡 ✓</div></div>`;
+    }
+    const cls = ck === 'none' ? 'v-none' : (ck === 'part' ? 'v-half' : (ck === 'static' ? 'v-static' : 'v-done'));
+    return `<div class="ck ${cls}" data-sub="${sub}">
+      <div class="ck-head">
+        <div class="ck-title"><div class="ck-ico">🔥</div><h2>今日接着打</h2></div>
+        <button type="button" class="entry" data-entry="checkin">打卡记录 ›</button>
+      </div>
+      <div class="sub">计划第 <b>12</b> 天<i>·</i>共 <b>25</b> 天<i>·</i><em class="subem">${sub}</em></div>
+      <div class="track">
+        <div class="day past"><div class="c"><div class="bar2" style="height:62%"></div></div><div class="n">5</div></div>
+        <div class="day miss"><div class="c"><div class="missbox">✕</div></div><div class="n">6</div></div>
+        <div class="day past"><div class="c"><div class="bar2" style="height:100%"></div></div><div class="n">7</div></div>
+        <div class="day past"><div class="c"><div class="bar2" style="height:74%"></div></div><div class="n">8</div></div>
+        <div class="day past"><div class="c"><div class="bar2" style="height:62%"></div></div><div class="n">9</div></div>
+        <div class="day past"><div class="c"><div class="bar2" style="height:88%"></div></div><div class="n">10</div></div>
+        <div class="day past"><div class="c"><div class="bar2" style="height:74%"></div></div><div class="n">11</div></div>
+        <div class="day today"><div class="c">${today}</div><div class="n">今天</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">13</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">14</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">15</div></div>
+      </div>
+    </div>`;
+  };
+
+  /* ---------- 今日任务（B · 一直动） ---------- */
+  const TASK = (n, r, dynamic, motion) => {
+    const nLeft = TOTAL_NEW - n, rLeft = TOTAL_REV - r;
+    const checked = nLeft === 0;
+    const newPri = nLeft > 0;
+    const revPri = nLeft === 0 && rLeft > 0;
+    const newGo = nLeft > 0 ? (n === 0 ? '开始学' : `继续学 ${nLeft}`) : '完成 ✓';
+    const revGo = nLeft > 0 ? '复习' : (rLeft > 0 ? `复习 ${rLeft}` : '完成 ✓');
+    const beat = dynamic && !(checked && rLeft === 0);
+    const revfin = dynamic && motion === 'revfin';
+
+    return `<div class="task ${beat ? 'beat' : ''} ${revfin ? 'revfin' : ''}">
+      <div class="th">
+        <div class="ti">📖</div><h2>今日任务</h2><div class="sp"></div>
+        <span class="mchip ${checked ? 'ok' : ''}">${checked ? '已打卡 ✓' : `还差 ${nLeft} 个`}</span>
+      </div>
+      <div class="rows">
+        <div class="rw new">
+          <span class="dot"></span>
+          <div class="info">
+            <div class="tt">新学词${nLeft === 0 ? '<em class="okc">✓</em>' : ''}</div>
+            <div class="pb"><i style="width:${n / TOTAL_NEW * 100}%"></i></div>
+          </div>
+          <div class="num">${n}<span>/${TOTAL_NEW}</span></div>
+          <button class="go ${newPri ? 'pri' : 'off'}"><span class="gl">${newGo}</span>${newPri ? '<span class="gar">›</span>' : ''}</button>
+        </div>
+        <div class="rw rev">
+          <span class="dot"></span>
+          <div class="info">
+            <div class="tt">复习词${r === TOTAL_REV ? `<em class="okc ${revfin ? 'pop' : ''}">✓</em>` : ''}</div>
+            <div class="pb"><i style="width:${r / TOTAL_REV * 100}%"></i></div>
+          </div>
+          <div class="num">${r}<span>/${TOTAL_REV}</span></div>
+          <button class="go ${revPri ? 'mint' : (rLeft === 0 ? 'off' : 'ghost')}"><span class="gl">${revGo}</span>${revPri ? '<span class="gar">›</span>' : ''}</button>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  const TABS = `
+    <nav class="tabs">
+      <div class="tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.6 12 3l9 7.6V21a1 1 0 0 1-1 1h-5.2v-6.6H9.2V22H4a1 1 0 0 1-1-1z"/></svg>今日</div>
+      <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22z"/></svg>词库</div>
+      <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8.5 12 2.2 2.2L15.8 9"/></svg>检测</div>
+      <div class="tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>我的</div>
+    </nav>`;
+
+  const phone = (variant, sc, dynamic) => {
+    const noanim = !dynamic;
+    return `<section class="demo">
+      <div class="tag"><b>${sc.tag}</b>${dynamic ? '<button class="replay" data-replay>↻ 重播</button>' : ''}</div>
+      <div class="phone" data-screen="${sc.k}" data-dyn="${dynamic ? 1 : 0}"><div class="shell ${noanim ? 'noanim' : ''}">
+        <div class="sbar"><span>9:41</span><div class="island"></div>
+          <div style="display:flex;gap:3px;align-items:center">
+            <svg width="10" height="7" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="15" height="7" viewBox="0 0 25 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="15" height="8" rx="2" fill="currentColor"/></svg>
+          </div>
+        </div>
+        <div class="scr">
+          <div class="ptitle">今日</div>
+          ${PLAN(variant, sc.plan, dynamic, sc.motion)}
+          ${CHECKIN(sc.ck, sc.sub, dynamic, TOTAL_NEW - sc.n)}
+          ${TASK(sc.n, sc.r, dynamic, sc.motion)}
+        </div>
+        ${TABS}
+      </div></div>
+    </section>`;
+  };
+
+  const block = (variant, dynamic, title, note) => `
+    <section class="sec" id="${dynamic ? 'motion' : 'static'}">
+      <div class="t"><b>${title}</b><em>${note}</em></div>
+      <div class="grid">${SCREENS.map(sc => phone(variant, sc, dynamic)).join('')}</div>
+    </section>`;
+
+  document.getElementById('app').innerHTML =
+    block('b', false, '静态 · 5 个学习进度', '静态终值') +
+    block('b', true, '动态 · 5 个学习进度', '进入视口播一次 · 点 ↻ 重播');
+
+  /* ================= 动效驱动 ================= */
+  const CURVE = [[0,0],[0.12,0.13],[0.38,0.47],[0.64,0.83],[0.85,0.965],[1,1]];
+  const TANGENT = (function(){
+    const n = CURVE.length, d = [], m = new Array(n).fill(0);
+    for (let i = 0; i < n - 1; i++) d[i] = (CURVE[i+1][1] - CURVE[i][1]) / (CURVE[i+1][0] - CURVE[i][0]);
+    m[0] = d[0]; m[n-1] = d[n-2];
+    for (let i = 1; i < n - 1; i++) m[i] = (d[i-1] + d[i]) / 2;
+    for (let i = 0; i < n - 1; i++){
+      if (d[i] === 0){ m[i] = 0; m[i+1] = 0; continue; }
+      const a = m[i] / d[i], b = m[i+1] / d[i], h = a*a + b*b;
+      if (h > 9){ const tau = 3 / Math.sqrt(h); m[i] = tau * a * d[i]; m[i+1] = tau * b * d[i]; }
+    }
+    return m;
+  })();
+  function ease(t){
+    t = Math.min(1, Math.max(0, t));
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    let i = 0;
+    while (i < CURVE.length - 2 && t > CURVE[i+1][0]) i++;
+    const [x0,y0] = CURVE[i], [x1,y1] = CURVE[i+1];
+    const h = x1 - x0, s = (t - x0) / h;
+    return (2*s*s*s - 3*s*s + 1) * y0 + (s*s*s - 2*s*s + s) * h * TANGENT[i]
+         + (-2*s*s*s + 3*s*s) * y1 + (s*s*s - s*s) * h * TANGENT[i+1];
+  }
+  const COLORS = ['#FFB020','#FF7A45','#7FE3CD','#FF6A2B'];
+
+  function makePlanPlayer(planEl){
+    const q = s => planEl.querySelector(s);
+    const fill = q('[data-fill]'), rocket = q('[data-rocket]'), fin = q('[data-finish]'), burst = q('[data-burst]');
+    const counts = Array.from(planEl.querySelectorAll('[data-count]'));
+    const stats = Array.from(planEl.querySelectorAll('[data-stat]'));
+    const sprint = planEl.dataset.play === 'sprint';
+    const P0 = sprint ? 50 : 0, P1 = sprint ? 118 : 50;
+    const B0 = sprint ? 42.37 : 0, B1 = sprint ? 100 : 42.37;
+    const DUR = sprint ? 2600 : 2400;
+    const FINAL = sprint ? [118,104,36] : [50,32,18];
+
+    if (burst && !burst.childElementCount){
+      for (let i = 0; i < 12; i++){
+        const a = (i / 12) * Math.PI * 2 + 0.4;
+        const dd = 26 + (i % 3) * 11;
+        const el = document.createElement('i');
+        el.style.setProperty('--x', (Math.cos(a) * dd).toFixed(0) + 'px');
+        el.style.setProperty('--y', (Math.sin(a) * dd * 0.9).toFixed(0) + 'px');
+        el.style.background = COLORS[i % COLORS.length];
+        el.style.animationDelay = ((i % 4) * 25) + 'ms';
+        burst.appendChild(el);
+      }
+    }
+    let raf = 0, t0 = 0, phase = 'idle';
+    function setBar(p, v){
+      fill.style.width = p.toFixed(2) + '%';
+      if (rocket) rocket.style.left = p.toFixed(2) + '%';
+      for (const n of counts) n.textContent = v;
+      if (stats[0]) stats[0].textContent = v;
+    }
+    function reset(){
+      planEl.classList.remove('done','hit','resetting');
+      if (fin) fin.textContent = '预计 11/28';
+      stats.forEach((el, i) => { if (i > 0) el.textContent = [50,32,18][i]; });
+      setBar(B0, P0);
+    }
+    function done(){
+      planEl.classList.add('done','hit');
+      if (fin) fin.textContent = '已完成';
+      stats.forEach((el, i) => { el.textContent = FINAL[i]; if (i > 0) el.classList.add('flip'); });
+      setTimeout(() => planEl.classList.remove('hit'), 520);
+    }
+    function play(){
+      cancelAnimationFrame(raf);
+      reset();
+      planEl.classList.add('running');
+      phase = 'sprint'; t0 = performance.now();
+      raf = requestAnimationFrame(tick);
+    }
+    function tick(now){
+      if (phase !== 'sprint') return;
+      const k = Math.min(1, (now - t0) / DUR);
+      const e = ease(k);
+      setBar(B0 + (B1 - B0) * e, Math.round(P0 + (P1 - P0) * e));
+      if (k >= 1){
+        setBar(B1, P1);
+        planEl.classList.remove('running');
+        if (sprint) done();
+        else stats.forEach((el, i) => { if (i > 0) el.textContent = FINAL[i]; });
+        phase = 'idle';
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    }
+    return play;
+  }
+
+  function playCheckin(ck){
+    if (!ck.classList.contains('v-done')) return;
+    const sub = ck.querySelector('.subem');
+    const B = ck.dataset.sub || '今天学了 8 个词，很厉害';
+    ck.classList.remove('playing');
+    sub.textContent = '今天的格子填满了！';
+    sub.classList.remove('swap');
+    void ck.offsetWidth;
+    ck.classList.add('playing');
+    clearTimeout(ck._t);
+    ck._t = setTimeout(() => {
+      if (sub.textContent === '今天的格子填满了！'){
+        sub.textContent = B;
+        sub.classList.remove('swap'); void sub.offsetWidth; sub.classList.add('swap');
+      }
+    }, 2200);
+  }
+
+  function playTask(taskEl){
+    if (!taskEl.classList.contains('revfin')) return;
+    taskEl.classList.remove('revfin'); void taskEl.offsetWidth; taskEl.classList.add('revfin');
+  }
+
+  const phones = Array.from(document.querySelectorAll('.phone[data-dyn="1"]'));
+  const plays = new Map();
+  phones.forEach(ph => {
+    const planEl = ph.querySelector('[data-play]');
+    const ck = ph.querySelector('.ck');
+    const task = ph.querySelector('.task');
+    const playPlan = planEl ? makePlanPlayer(planEl) : null;
+    const run = () => {
+      if (playPlan) playPlan();
+      playCheckin(ck);
+      playTask(task);
+    };
+    plays.set(ph, run);
+    ph.addEventListener('click', event => { if (!event.target.closest('[data-entry]')) run(); });
+  });
+
+  document.querySelectorAll('[data-replay]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const demo = btn.closest('.demo');
+      const ph = demo && demo.querySelector('.phone');
+      const run = ph && plays.get(ph);
+      if (run) run();
+    });
+  });
+
+  if ('IntersectionObserver' in window){
+    const seen = new WeakSet();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && e.intersectionRatio >= .45 && !seen.has(e.target)){
+          seen.add(e.target);
+          const run = plays.get(e.target);
+          if (run) run();
+        }
+      });
+    }, { threshold: [.45] });
+    phones.forEach(ph => io.observe(ph));
+  } else {
+    phones.forEach((ph, i) => setTimeout(() => plays.get(ph)(), 600 + i * 200));
+  }
+const gradeNames = {3:'三',4:'四',5:'五',6:'六'};
+let savedTextbook = {grade:5, term:'上', units:[2,3,4,5,6]};
+const rangeName = units => units.length ? units.map(n=>'Unit '+n).join('、') : '还未选择单元';
+const bookName = b => gradeNames[b.grade]+'年级'+b.term+'册';
+const todayTitle = sc => sc.tag.replace(/^\S+\s+/, '');
+
+function renderTextbook(body) {
+  const draft = {...savedTextbook,units:[...savedTextbook.units]};
+  const option = (key,value,title,pressed) => `<button type="button" class="entry-choice" data-${key}="${value}" aria-pressed="${pressed}">${title}</button>`;
+  const draw = focus => {
+    body.innerHTML = `<div class="entry-panel">
+      <p>选择年级、学期和计划要覆盖的单元。当前计划页按已选学习进度展示。</p>
+      <section class="entry-card"><h3>教材 · 人教 PEP 版</h3><div class="entry-grid">
+        ${Object.keys(gradeNames).map(g=>option('grade',g,gradeNames[g]+'年级',draft.grade===Number(g))).join('')}
+        ${['上','下'].map(t=>option('term',t,t+'册',draft.term===t)).join('')}</div></section>
+      <section class="entry-card"><h3>学习范围</h3><div class="entry-grid">
+        ${[1,2,3,4,5,6].map(i=>option('unit',i,'Unit '+i,draft.units.includes(i))).join('')}</div></section>
+      <p class="entry-note">当前选择　${bookName(draft)} · ${rangeName(draft.units)}</p>
+      <button class="entry-primary" type="button" data-save-book ${draft.units.length?'':'disabled'}>确认教材和范围</button>
+    </div>`;
+    body.querySelectorAll('button').forEach(button=>{
+      button.addEventListener('click',()=>{
+        if (button.hasAttribute('data-save-book')) {
+          savedTextbook = {...draft,units:[...draft.units]};
+          body.innerHTML = `<div class="entry-panel"><section class="entry-card"><h3>已保存选择</h3><p>${bookName(savedTextbook)} · ${rangeName(savedTextbook.units)}</p></section><p>返回后可继续查看今日各状态的原稿数据。</p><button class="entry-primary" type="button" data-return-today>返回今日</button></div>`;
+          body.querySelector('[data-return-today]').addEventListener('click',goBack);
+          body.querySelector('[data-return-today]').focus();
+          return;
+        }
+        const {grade,term,unit} = button.dataset;
+        if (grade) draft.grade=Number(grade);
+        if (term) draft.term=term;
+        if (unit) {
+          const num=Number(unit);
+          draft.units=draft.units.includes(num) ? draft.units.filter(i=>i!==num) : [...draft.units,num].sort((a,b)=>a-b);
+        }
+        draw(grade ? '[data-grade="'+grade+'"]' : term ? '[data-term="'+term+'"]' : '[data-unit="'+unit+'"]');
+      });
+    });
+    if (focus) body.querySelector(focus)?.focus();
+  };
+  draw();
+}
+
+function renderProgress(body,state) {
+  const p = PLAN_STATE[state.plan];
+  const pct = Math.round(p.p);
+  body.innerHTML = `<div class="entry-panel">
+    <section class="entry-card"><h3>五年级上册 · 人教 PEP 版</h3><p>Unit 2–6 · 共 118 词</p>
+      <div class="entry-progress" role="progressbar" aria-label="计划学习进度" aria-valuenow="${p.v}" aria-valuemax="118"><i style="width:${p.p}%"></i></div>
+      <p><b>${p.v} / 118 词 · ${pct}%</b>　${p.date}</p>
+      <div class="entry-metrics">${['已学','已复习','已掌握'].map((label,i)=>`<div><b>${p.st[i]}</b><small>${label}</small></div>`).join('')}</div>
+    </section>
+    <section class="entry-card"><h3>今天 · ${todayTitle(state)}</h3>
+      <ul class="entry-list"><li><span>新学</span><strong>${state.n} / ${TOTAL_NEW} 词</strong></li><li><span>复习</span><strong>${state.r} / ${TOTAL_REV} 词</strong></li></ul>
+    </section>
+  </div>`;
+}
+
+function renderCheckin(body,state) {
+  const status = state.n===TOTAL_NEW ? '已打卡' : state.n ? '进行中' : '未开始';
+  const rows = [['第 12 天 · 今天',state.n,status],['第 11 天',4,'学习过'],['第 10 天',4,'学习过'],['第 9 天',3,'学习过'],['第 8 天',4,'学习过'],['第 7 天',5,'已打卡'],['第 6 天',0,'漏打卡'],['第 5 天',3,'学习过']];
+  body.innerHTML = `<div class="entry-panel">
+    <section class="entry-card"><h3>今日打卡</h3><p>计划第 12 天 / 共 25 天 · 学完 ${TOTAL_NEW} 个新词即可打卡</p>
+      <div class="entry-progress" role="progressbar" aria-label="今日打卡进度" aria-valuenow="${state.n}" aria-valuemax="${TOTAL_NEW}"><i style="width:${state.n/TOTAL_NEW*100}%"></i></div>
+      <p><b>${state.n} / ${TOTAL_NEW} 词 · ${status}</b></p>
+    </section>
+    <section class="entry-card"><h3>最近记录</h3><ul class="entry-list">
+      ${rows.map(([day,words,mark])=>`<li><span>${day} <small>${words} 词</small></span><strong>${mark}</strong></li>`).join('')}
+    </ul></section>
+  </div>`;
+}
+function renderEntry(body,key,state) {
+  if (key==='textbook') renderTextbook(body);
+  else if (key==='progress') renderProgress(body,state);
+  else renderCheckin(body,state);
+}
+
+const entryTitles = {textbook:'切换教材', progress:'查看进度', checkin:'打卡记录'};
+const entryDialog = document.getElementById('entry-dialog');
+const entryBody = document.getElementById('entry-body');
+const entryTitle = document.getElementById('entry-title');
+const closeEntryButton = document.getElementById('entry-back');
+let opener = null;
+let activeEntry = null;
+let closing = false;
+
+function readRoute() {
+  const [key, state, mode] = location.hash.slice(1).split('/');
+  return Object.hasOwn(entryTitles,key) && SCREENS.some(s=>s.k===state) && /^(static|motion)$/.test(mode)
+    ? {key,state,mode} : null;
+}
+function showEntryRoute() {
+  const route = readRoute();
+  if (!route) {
+    if (entryDialog.open) {
+      closing = true;
+      entryDialog.close();
+      closing = false;
+      opener?.focus({preventScroll:true});
+    }
+    activeEntry = null;
+    return;
+  }
+  const routeKey = location.hash;
+  if (routeKey === activeEntry) return;
+  activeEntry = routeKey;
+  const state = SCREENS.find(item=>item.k===route.state);
+  entryTitle.textContent = entryTitles[route.key];
+  renderEntry(entryBody, route.key, state);
+  if (!entryDialog.open) entryDialog.showModal();
+  closeEntryButton.focus({preventScroll:true});
+}
+function goBack() {
+  if (history.state?.wordclassEntry) history.back();
+  else {
+    history.replaceState(null,'',location.pathname+location.search);
+    showEntryRoute();
+  }
+}
+document.addEventListener('click',event=>{
+  const trigger = event.target.closest('[data-entry]');
+  if (!trigger) return;
+  const phone = trigger.closest('.phone');
+  opener = trigger;
+  const mode = phone.dataset.dyn === '1' ? 'motion' : 'static';
+  const path = [trigger.dataset.entry,phone.dataset.screen,mode].join('/');
+  history.pushState({wordclassEntry:true},'', '#'+path);
+  showEntryRoute();
+});
+closeEntryButton.addEventListener('click', goBack);
+entryDialog.addEventListener('cancel', event=>{event.preventDefault();goBack();});
+entryDialog.addEventListener('close',()=>{if (!closing && readRoute()) goBack();});
+window.addEventListener('popstate',showEntryRoute);
+window.addEventListener('hashchange',showEntryRoute);
+showEntryRoute();
+</script>
+</body>
+</html>
