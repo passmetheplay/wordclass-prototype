@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>今日 · 方案 A · 还未开始学习</title>
+<title>方案A-整个原型</title>
 <style>
   :root{
     --bg:#FFF8F0;--ink:#2A1F1A;--ink2:#7C6A60;--ink3:#B3A298;
@@ -1028,7 +1028,16 @@ entryDialog.addEventListener('cancel', event=>{event.preventDefault();goBack();}
 entryDialog.addEventListener('close',()=>{if (!closing && readRoute()) goBack();});
 window.addEventListener('popstate',showEntryRoute);
 window.addEventListener('hashchange',showEntryRoute);
-showEntryRoute();
+function openTodayHome() {
+  if (location.hash || history.state?.wordclassEntry) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  showEntryRoute();
+}
+openTodayHome();
+window.addEventListener('pageshow', event => {
+  if (event.persisted) openTodayHome();
+});
 </script>
 </body>
 </html>
