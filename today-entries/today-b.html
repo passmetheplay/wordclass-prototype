@@ -313,27 +313,7 @@
   #entry-title{text-align:center;font-size:17px}
   #entry-body{min-height:160px}
   .embedded-entry{width:100%;height:min(68dvh,700px);border:0;display:block;background:#fffaf5}
-  .entry-panel{padding:16px;display:grid;gap:12px}
-  .entry-panel p{color:#795e51;font-size:12px;line-height:1.65}
-  .entry-card{border:1px solid #f0e3d8;background:#fff;border-radius:16px;padding:13px}
-  .entry-card h3{font-size:14px;margin-bottom:8px}
-  .entry-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-  .entry-choice,.entry-primary,.entry-secondary{border:1px solid #ead9cc;border-radius:10px;background:#fffaf4;color:#754c39;font:800 12px var(--font);padding:10px 6px;cursor:pointer}
-  .entry-choice[aria-pressed=true]{background:#fff0dd;color:#a84016;border-color:#f49d6a}
-  .entry-primary{border-color:transparent;background:#c95220;color:#fff;padding:11px 16px}
-  .entry-primary:disabled{opacity:.5;cursor:default}
-  .entry-secondary{background:#e9f8f3;border-color:#d7eee5;color:#087c69;padding:10px 12px}
-  .entry-choice:focus-visible,.entry-primary:focus-visible,.entry-secondary:focus-visible{outline:2px solid #168974;outline-offset:2px}
-  .entry-progress{height:9px;border-radius:9px;overflow:hidden;background:#f5e8dc;margin:12px 0}
-  .entry-progress i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#ffc285,#ef692d)}
-  .entry-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0 0;text-align:center}
-  .entry-metrics div{padding:9px 4px;background:#fff4e9;border-radius:10px}.entry-metrics b{display:block;font-size:21px}
-  .entry-metrics small,.entry-list small{color:#795e51;font-size:11px}
-  .entry-list{display:grid;gap:7px;margin:0;padding:0;list-style:none}
-  .entry-list li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid #f2e8df;font-size:12px}
-  .entry-list li:last-child{border-bottom:0}.entry-list strong{color:#087c69}
-  .entry-panel [hidden]{display:none}
-  .entry-note{font-size:11px;color:#815841;background:#fff1e1;padding:8px 10px;border-radius:9px}
+  [data-custom-plan] .plan .meta{flex-wrap:wrap;white-space:normal;line-height:1.35}
 </style>
 </head>
 <body>
@@ -341,7 +321,7 @@
 <div class="head">
   <div class="kick">TODAY TAB · FINAL</div>
   <h1>今日 Tab · 方案 B · 教材右栏缩进</h1>
-  <p>每套包含 5 个学习进度。点手机画面里的「切换教材」「查看进度」「打卡记录」打开二级页交互演示。</p>
+  <p>每套包含 5 个学习进度。点手机画面里的「切换教材」「查看进度」「打卡记录」进入对应的详细页面。</p>
   <div class="picks"><a class="jump" href="#static">看静态 ↓</a><a class="jump" href="#motion">看动态 ↓</a></div>
 </div>
 
@@ -404,14 +384,14 @@
   ];
 
   /* ---------- 学习计划 ---------- */
-  const PLAN = (variant, pkey, dynamic, motion) => {
+  const PLAN = (variant, pkey, dynamic, motion, custom) => {
     const d = PLAN_STATE[pkey];
     const finished = d.p >= 100;
     let pct = d.p, num = d.v, play = '';
     if (dynamic && motion === 'fill'){ pct = 0; num = 0; play = 'fill'; }
     if (dynamic && motion === 'sprint'){ pct = 42.37; num = 50; play = 'sprint'; }
     const isDone = finished && !play;
-    const dateTxt = isDone ? '已完成' : d.date;
+    const dateTxt = isDone ? '已完成' : custom ? '预计 '+custom.eta.replace(/ 月 /,'/').replace(/ 日/,'') : d.date;
     const st = (dynamic && motion === 'fill') ? [0, d.st[1], d.st[2]] : d.st;
 
     const barrow = `
@@ -442,12 +422,12 @@
         <div class="top"><div class="ico">🗓️</div><h2>计划学习</h2><span class="banner">艾宾浩斯记忆法</span></div>
         <div class="inner">
           <div class="book">
-            <div class="cover"><img src="${COVER}" alt="封面"><span class="stamp">全部完成</span></div>
+            <div class="cover"><img src="${custom ? COVER.replace(encodeURIComponent('五年级上册'),encodeURIComponent(customTitle(custom))) : COVER}" alt="封面"><span class="stamp">全部完成</span></div>
             <div class="bi">
               <button type="button" class="link" data-entry="progress">查看进度 ›</button>
               <div class="txt">
-                <h3>五年级上册</h3>
-                <div class="meta"><i>人教PEP版</i><em>·</em><b>2–6 单元</b><em>·</em>共 <b>118</b> 词</div>
+                <h3>${custom ? customTitle(custom) : '五年级上册'}</h3>
+                <div class="meta"><i>${custom?.book || '人教PEP版'}</i><em>·</em><b>${custom?unitRange(custom.units):'2–6 单元'}</b><em>·</em>共 <b>${custom?.total ?? 118}</b> 词</div>
               </div>
               ${variant === 'a' ? stats('footrow') : barrow}
             </div>
@@ -459,7 +439,7 @@
   };
 
   /* ---------- 今日打卡 ---------- */
-  const CHECKIN = (ck, sub, dynamic, remaining) => {
+  const CHECKIN = (ck, sub, dynamic, remaining, newPlanDays) => {
     let today = '';
     if (ck === 'none'){
       today = `<div class="halo static"></div><div class="halo a"></div><div class="halo b"></div>
@@ -480,8 +460,9 @@
         <div class="ck-title"><div class="ck-ico">🔥</div><h2>今日接着打</h2></div>
         <button type="button" class="entry" data-entry="checkin">打卡记录 ›</button>
       </div>
-      <div class="sub">计划第 <b>12</b> 天<i>·</i>共 <b>25</b> 天<i>·</i><em class="subem">${sub}</em></div>
+      <div class="sub">计划第 <b>${newPlanDays ? 1 : 12}</b> 天<i>·</i>共 <b>${newPlanDays || 25}</b> 天<i>·</i><em class="subem">${sub}</em></div>
       <div class="track">
+        ${newPlanDays ? Array.from({length:7},()=>'<div class="day past"><div class="c"></div><div class="n">–</div></div>').join('') : `
         <div class="day past"><div class="c"><div class="bar2" style="height:62%"></div></div><div class="n">5</div></div>
         <div class="day miss"><div class="c"><div class="missbox">✕</div></div><div class="n">6</div></div>
         <div class="day past"><div class="c"><div class="bar2" style="height:100%"></div></div><div class="n">7</div></div>
@@ -489,22 +470,23 @@
         <div class="day past"><div class="c"><div class="bar2" style="height:62%"></div></div><div class="n">9</div></div>
         <div class="day past"><div class="c"><div class="bar2" style="height:88%"></div></div><div class="n">10</div></div>
         <div class="day past"><div class="c"><div class="bar2" style="height:74%"></div></div><div class="n">11</div></div>
+        `}
         <div class="day today"><div class="c">${today}</div><div class="n">今天</div></div>
-        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">13</div></div>
-        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">14</div></div>
-        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">15</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">${newPlanDays ? newPlanDays >= 2 ? 2 : '–' : 13}</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">${newPlanDays ? newPlanDays >= 3 ? 3 : '–' : 14}</div></div>
+        <div class="day future"><div class="c"><div class="ghost"></div></div><div class="n">${newPlanDays ? newPlanDays >= 4 ? 4 : '–' : 15}</div></div>
       </div>
     </div>`;
   };
 
   /* ---------- 今日任务（B · 一直动） ---------- */
-  const TASK = (n, r, dynamic, motion) => {
-    const nLeft = TOTAL_NEW - n, rLeft = TOTAL_REV - r;
+  const TASK = (n, r, dynamic, motion, newGoal=TOTAL_NEW, reviewGoal=TOTAL_REV) => {
+    const nLeft = newGoal - n, rLeft = reviewGoal - r;
     const checked = nLeft === 0;
     const newPri = nLeft > 0;
     const revPri = nLeft === 0 && rLeft > 0;
     const newGo = nLeft > 0 ? (n === 0 ? '开始学' : `继续学 ${nLeft}`) : '完成 ✓';
-    const revGo = nLeft > 0 ? '复习' : (rLeft > 0 ? `复习 ${rLeft}` : '完成 ✓');
+    const revGo = !reviewGoal ? '无到期词' : nLeft > 0 ? '复习' : (rLeft > 0 ? `复习 ${rLeft}` : '完成 ✓');
     const beat = dynamic && !(checked && rLeft === 0);
     const revfin = dynamic && motion === 'revfin';
 
@@ -518,18 +500,18 @@
           <span class="dot"></span>
           <div class="info">
             <div class="tt">新学词${nLeft === 0 ? '<em class="okc">✓</em>' : ''}</div>
-            <div class="pb"><i style="width:${n / TOTAL_NEW * 100}%"></i></div>
+            <div class="pb"><i style="width:${n / newGoal * 100}%"></i></div>
           </div>
-          <div class="num">${n}<span>/${TOTAL_NEW}</span></div>
+          <div class="num">${n}<span>/${newGoal}</span></div>
           <button class="go ${newPri ? 'pri' : 'off'}"><span class="gl">${newGo}</span>${newPri ? '<span class="gar">›</span>' : ''}</button>
         </div>
         <div class="rw rev">
           <span class="dot"></span>
           <div class="info">
-            <div class="tt">复习词${r === TOTAL_REV ? `<em class="okc ${revfin ? 'pop' : ''}">✓</em>` : ''}</div>
-            <div class="pb"><i style="width:${r / TOTAL_REV * 100}%"></i></div>
+            <div class="tt">复习词${reviewGoal && r === reviewGoal ? `<em class="okc ${revfin ? 'pop' : ''}">✓</em>` : ''}</div>
+            <div class="pb"><i style="width:${reviewGoal ? r / reviewGoal * 100 : 0}%"></i></div>
           </div>
-          <div class="num">${r}<span>/${TOTAL_REV}</span></div>
+          <div class="num">${reviewGoal ? `${r}<span>/${reviewGoal}</span>` : '—'}</div>
           <button class="go ${revPri ? 'mint' : (rLeft === 0 ? 'off' : 'ghost')}"><span class="gl">${revGo}</span>${revPri ? '<span class="gar">›</span>' : ''}</button>
         </div>
       </div>
@@ -701,6 +683,7 @@
     const task = ph.querySelector('.task');
     const playPlan = planEl ? makePlanPlayer(planEl) : null;
     const run = () => {
+      if (ph.dataset.customPlan) return;
       if (playPlan) playPlan();
       playCheckin(ck);
       playTask(task);
@@ -733,85 +716,304 @@
   } else {
     phones.forEach((ph, i) => setTimeout(() => plays.get(ph)(), 600 + i * 200));
   }
-const gradeNames = {3:'三',4:'四',5:'五',6:'六'};
-let savedTextbook = {grade:5, term:'上', units:[2,3,4,5,6]};
-const rangeName = units => units.length ? units.map(n=>'Unit '+n).join('、') : '还未选择单元';
-const bookName = b => gradeNames[b.grade]+'年级'+b.term+'册';
-const todayTitle = sc => sc.tag.replace(/^\S+\s+/, '');
+const DETAIL_STYLES = {"textbook": "\n  :root{--ink:#2B211C;--ink2:#7B6A5F;--ink3:#B3A298;--line:rgba(120,86,62,.10);--o:#F4621F;--odeep:#C0530F;--osoft:#FFF1E8;\n    --font:-apple-system,BlinkMacSystemFont,\"SF Pro Rounded\",\"PingFang SC\",\"Noto Sans SC\",Arial,sans-serif;}\n  *{box-sizing:border-box}\n  body{margin:0;font-family:var(--font);color:var(--ink);background:radial-gradient(700px 460px at 6% -8%,#F9EEE2,transparent 60%),#FBF8F4}\n  h1,p{margin:0}\n  .wrap{max-width:640px;margin:0 auto;padding:26px 18px 50px}\n  .kick{font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--odeep)}\n  h1{font-size:23px;letter-spacing:-.6px;margin:8px 0 6px}\n  .lead{font-size:12px;line-height:1.7;color:var(--ink2)}\n  .screen{width:394px;height:820px;margin:22px auto 0;border-radius:28px;overflow:hidden;position:relative;\n    background:linear-gradient(180deg,#FFF6EC,#FFF9F3 20%,#FFF9F3);\n    box-shadow:0 22px 48px rgba(150,110,70,.18),inset 0 0 0 1px rgba(150,110,70,.08);display:flex;flex-direction:column}\n  .sbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11px;font-weight:800}\n  .island{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:78px;height:20px;border-radius:99px;background:#111}\n  .nav{display:flex;align-items:center;padding:6px 18px 0}\n  .nav .back{width:26px;height:26px;display:grid;place-items:center;font-size:17px;color:#6F5E52}\n  .nav h2{font-size:16px;font-weight:900;flex:1;text-align:center;padding-right:20px}\n  .body{padding:16px 18px 0}\n  .h{font-size:19px;font-weight:900;letter-spacing:-.4px}\n  .sub{font-size:11px;color:var(--ink3);font-weight:700;margin:3px 0 14px}\n  .row{display:flex;align-items:center;background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:8px;\n    box-shadow:0 6px 16px rgba(150,110,70,.07);font-size:13px}\n  .row .k{font-weight:800;color:var(--ink2);width:64px;font-size:12px}\n  .row .v{font-weight:900}\n  .row .ch{margin-left:auto;color:#C9B9AE;font-weight:900}\n  .row .n{font-size:11px;color:var(--ink3);font-weight:800;margin-left:6px}\n  .sum{background:#fff;border-radius:16px;padding:14px;box-shadow:0 8px 20px rgba(150,110,70,.10);margin-top:6px}\n  .srow{display:flex;font-size:11.5px;font-weight:700;color:var(--ink2);padding:4px 0}\n  .srow b{margin-left:auto;color:var(--ink);font-weight:900}\n  .div{height:1px;background:#F6EDE5;margin:6px 0}\n  .est{display:flex;align-items:baseline;gap:6px}\n  .est b{font-size:26px;font-weight:900;color:var(--odeep);letter-spacing:-.8px}\n  .est span{font-size:11px;color:var(--ink3);font-weight:700}\n  .bottom{margin-top:auto;padding:12px 18px 20px}\n  .cta{height:50px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;\n    background:linear-gradient(180deg,#FF8A4C,#F4621F);box-shadow:0 10px 22px rgba(244,98,31,.3)}\n  .hint{text-align:center;font-size:9.5px;color:#C0AC9A;font-weight:700;margin-top:8px}\n  .note{max-width:640px;margin:18px auto 0;background:#fff;border-radius:16px;padding:14px 18px 8px;box-shadow:0 8px 20px rgba(180,140,100,.08)}\n  .note .t{font-size:10.5px;font-weight:900;color:var(--odeep);margin-bottom:4px}\n  .note p{font-size:11px;line-height:1.75;color:var(--ink2);margin:6px 0}\n  .note b{color:var(--ink)}\nbody{background:#fff9f3}\n.screen{width:100%;height:auto;min-height:100dvh;border-radius:0;margin:0;box-shadow:none;overflow:visible}\nbutton{font:inherit;color:inherit;cursor:pointer;border:0;background:none}\nbutton:focus-visible,input:focus-visible{outline:2px solid #087f71;outline-offset:2px}\nbutton:disabled{cursor:default;opacity:.56}\n.detail-summary,.plan-heading,.picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px}\n.detail-summary{padding:12px 16px 5px;font-size:15px}\n.minor{flex:none;color:var(--odeep);border-radius:99px;background:var(--osoft);padding:7px 9px;font-size:11px;font-weight:850}\n.picker{background:#fff;border:1px solid #f1decf;border-radius:14px;padding:10px;margin-bottom:8px}\n.picker-head{margin-bottom:7px}\n.choices,.actions{display:flex;gap:6px;flex-wrap:wrap}\n.choices:not(:empty){margin-top:6px}\n.choice{padding:7px 9px;border:1px solid #eeddd1;background:#fff9f4;color:#724b38;border-radius:8px;font-size:11px;font-weight:800}\n.choice[aria-pressed=true]{background:var(--osoft);border-color:#f4a881;color:var(--odeep)}\n.choice small{font-size:9px;color:#866f62}\n.custom-form{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:11px}\n.custom-form input{width:70px;border:1px solid #e1c8b6;border-radius:7px;padding:6px}\n.plan-detail button.row,.plan-detail .cta,.lookup-detail .urow{width:100%;text-align:left}\n.plan-detail .row .k{flex:none}\n.plan-detail .row .n,.lookup-detail .u span{color:#826d61}\n.plan-detail .bottom{padding-bottom:14px}\n.plan-detail .sum b{font-variant-numeric:tabular-nums}\n.lookup-detail .tabsrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-inline:12px;overflow:visible}\n.lookup-detail .tab{padding-inline:0;text-align:center;font-size:10px}\n.lookup-detail .tab em{display:block;margin:2px 0 0}\n.lookup-detail .units{overflow-x:auto;mask-image:none;-webkit-mask-image:none;padding-inline:14px;scrollbar-width:thin}\n.lookup-detail .u{flex:none;text-align:left}\n.lookup-detail .body{padding-bottom:14px}\n.lookup-detail .card{flex:none;margin-bottom:14px}\n.lookup-detail .en{width:34%;overflow-wrap:anywhere}\n.lookup-detail .empty{padding:22px;text-align:center;color:#826d61;font-size:12px}\n.lookup-detail .st{color:#775f50}\n.record-detail .actions{padding:4px 12px 0}\n.record-detail .range-hint{font-size:10px;color:#775f50;text-align:center}\n.record-detail .ring{width:155px;height:155px;background:conic-gradient(var(--o) 0 var(--percent),#F1E4D8 var(--percent) 100%)}\n.record-detail .seg button{flex:1;text-align:center;font-size:11px;font-weight:900;color:#826d61;padding:6px 0;border-radius:99px}\n.record-detail .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(150,110,70,.12)}\n.record-detail .list{flex:none;padding-bottom:12px}\n.record-detail button.star{padding:2px 4px;color:#89653e;font-size:18px}\n.record-detail button.star[aria-pressed=true]{color:#c7561e}\n", "progress": "\n  :root{\n    --ink:#2B211C;--ink2:#7B6A5F;--ink3:#B3A298;--line:rgba(120,86,62,.10);\n    --o:#F4621F;--odeep:#C0530F;--osoft:#FFF1E8;--mint:#12A78F;--msoft:#E9FBF6;\n    --font:-apple-system,BlinkMacSystemFont,\"SF Pro Rounded\",\"PingFang SC\",\"Noto Sans SC\",Arial,sans-serif;\n  }\n  *{box-sizing:border-box}\n  body{margin:0;font-family:var(--font);color:var(--ink);\n    background:radial-gradient(700px 460px at 6% -8%,#F9EEE2 0%,transparent 60%),#FBF8F4;min-height:100dvh}\n  h1,h2,p{margin:0}\n  .wrap{max-width:1260px;margin:0 auto;padding:30px 18px 60px}\n  .kick{font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--odeep)}\n  h1{font-size:25px;letter-spacing:-.6px;margin:8px 0 8px}\n  .lead{font-size:12.5px;line-height:1.7;color:var(--ink2);max-width:800px}\n  .lead b{color:var(--ink)}\n  .row{display:flex;gap:22px;justify-content:center;margin-top:24px;flex-wrap:wrap}\n  .item{width:394px}\n  .cap{font-size:10.5px;font-weight:900;color:var(--ink3);margin:0 0 8px 2px}\n  .cap b{color:var(--odeep)}\n\n  .screen{width:394px;height:820px;border-radius:28px;overflow:hidden;position:relative;\n    background:linear-gradient(180deg,#FFF6EC 0%,#FFF9F3 20%,#FFF9F3 100%);\n    box-shadow:0 22px 48px rgba(150,110,70,.18),inset 0 0 0 1px rgba(150,110,70,.08);\n    display:flex;flex-direction:column}\n  .sbar{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11px;font-weight:800;flex:none}\n  .sbar .island{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:78px;height:20px;border-radius:99px;background:#111}\n  .nav{flex:none;display:flex;align-items:center;padding:6px 18px 0}\n  .nav .back{width:26px;height:26px;display:grid;place-items:center;font-size:17px;color:#6F5E52}\n  .nav h2{font-size:16px;font-weight:900;flex:1;text-align:center;padding-right:20px}\n\n  .tabsrow{flex:none;display:flex;gap:14px;padding:12px 18px 10px;overflow:hidden}\n  .tab{font-size:11.5px;font-weight:800;color:#A2917F;white-space:nowrap;position:relative;padding-bottom:6px}\n  .tab.on{color:var(--ink);font-weight:900}\n  .tab.on::after{content:\"\";position:absolute;left:0;right:0;bottom:0;height:2.5px;border-radius:9px;background:var(--o)}\n  .tab em{font-style:normal;font-size:9px;font-weight:800;color:#C0AC9A;margin-left:1px}\n\n  .units{flex:none;display:flex;gap:6px;padding:0 18px 10px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,#000 86%,transparent);mask-image:linear-gradient(90deg,#000 86%,transparent)}\n  .u{background:#fff;border-radius:11px;padding:7px 9px;border:1.5px solid transparent;box-shadow:0 3px 10px rgba(150,110,70,.06);min-width:62px}\n  .u.on{border-color:#FFC9AE;background:#FFF8F2}\n  .u b{display:block;font-size:10.5px;font-weight:900}\n  .u span{font-size:8px;font-weight:800;color:var(--ink3)}\n  .u .pb{height:3px;border-radius:9px;background:#F1E7DC;margin-top:4px;overflow:hidden}\n  .u .pb i{display:block;height:100%;border-radius:9px;background:var(--o)}\n\n  .card{margin:0 14px;flex:1;min-height:0;background:#fff;border-radius:18px;overflow:hidden;\n    box-shadow:0 10px 26px rgba(150,110,70,.10);display:flex;flex-direction:column}\n  .chead{flex:none;display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid #F6EDE5;font-size:11.5px;font-weight:900}\n  .chead .c{margin-left:auto;font-size:10px;font-weight:800;color:var(--ink3)}\n  .w{display:flex;align-items:center;padding:11px 14px;border-bottom:1px solid #F7EFE7;gap:8px}\n  .w:nth-child(even){background:#FFFBF6}\n  .dot{width:6px;height:6px;border-radius:50%;background:var(--o);flex:none}\n  .dot.m{background:var(--mint)}\n  .dot.g{background:#DFD2C6}\n  .en{width:44%;font-size:15.5px;font-weight:900;letter-spacing:-.3px}\n  .cn{flex:1;font-size:10.5px;line-height:1.5;color:#5C4C42;font-weight:600}\n  .st{font-size:8px;font-weight:900;color:#B3A298;flex:none}\n  .st.m{color:var(--mint)}\n\n  .urow{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:12px 13px;margin-bottom:9px;\n    box-shadow:0 6px 16px rgba(150,110,70,.08)}\n  .urow .big{font-size:13px;font-weight:900;width:78px}\n  .urow .mid{flex:1}\n  .urow .pb{height:5px;border-radius:9px;background:#F1E7DC;overflow:hidden;margin-top:5px}\n  .urow .pb i{display:block;height:100%;border-radius:9px;background:var(--o)}\n  .urow .meta{font-size:9px;color:var(--ink3);font-weight:800;margin-top:4px}\n  .urow .ch{color:#C9B9AE;font-size:14px}\n  .body{padding:14px 18px 0;overflow:hidden}\n  .h{font-size:18px;font-weight:900;letter-spacing:-.4px;margin-bottom:3px}\n  .sub{font-size:10.5px;color:var(--ink3);font-weight:700;margin-bottom:12px}\n  .sum3{display:flex;gap:6px;margin-bottom:12px}\n  .sum3 div{flex:1;background:#fff;border-radius:11px;padding:8px;text-align:center;box-shadow:0 3px 10px rgba(150,110,70,.06)}\n  .sum3 b{display:block;font-size:14px;font-weight:900}\n  .sum3 span{font-size:8px;font-weight:800;color:var(--ink3)}\nbody{background:#fff9f3}\n.screen{width:100%;height:auto;min-height:100dvh;border-radius:0;margin:0;box-shadow:none;overflow:visible}\nbutton{font:inherit;color:inherit;cursor:pointer;border:0;background:none}\nbutton:focus-visible,input:focus-visible{outline:2px solid #087f71;outline-offset:2px}\nbutton:disabled{cursor:default;opacity:.56}\n.detail-summary,.plan-heading,.picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px}\n.detail-summary{padding:12px 16px 5px;font-size:15px}\n.minor{flex:none;color:var(--odeep);border-radius:99px;background:var(--osoft);padding:7px 9px;font-size:11px;font-weight:850}\n.picker{background:#fff;border:1px solid #f1decf;border-radius:14px;padding:10px;margin-bottom:8px}\n.picker-head{margin-bottom:7px}\n.choices,.actions{display:flex;gap:6px;flex-wrap:wrap}\n.choices:not(:empty){margin-top:6px}\n.choice{padding:7px 9px;border:1px solid #eeddd1;background:#fff9f4;color:#724b38;border-radius:8px;font-size:11px;font-weight:800}\n.choice[aria-pressed=true]{background:var(--osoft);border-color:#f4a881;color:var(--odeep)}\n.choice small{font-size:9px;color:#866f62}\n.custom-form{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:11px}\n.custom-form input{width:70px;border:1px solid #e1c8b6;border-radius:7px;padding:6px}\n.plan-detail button.row,.plan-detail .cta,.lookup-detail .urow{width:100%;text-align:left}\n.plan-detail .row .k{flex:none}\n.plan-detail .row .n,.lookup-detail .u span{color:#826d61}\n.plan-detail .bottom{padding-bottom:14px}\n.plan-detail .sum b{font-variant-numeric:tabular-nums}\n.lookup-detail .tabsrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-inline:12px;overflow:visible}\n.lookup-detail .tab{padding-inline:0;text-align:center;font-size:10px}\n.lookup-detail .tab em{display:block;margin:2px 0 0}\n.lookup-detail .units{overflow-x:auto;mask-image:none;-webkit-mask-image:none;padding-inline:14px;scrollbar-width:thin}\n.lookup-detail .u{flex:none;text-align:left}\n.lookup-detail .body{padding-bottom:14px}\n.lookup-detail .card{flex:none;margin-bottom:14px}\n.lookup-detail .en{width:34%;overflow-wrap:anywhere}\n.lookup-detail .empty{padding:22px;text-align:center;color:#826d61;font-size:12px}\n.lookup-detail .st{color:#775f50}\n.record-detail .actions{padding:4px 12px 0}\n.record-detail .range-hint{font-size:10px;color:#775f50;text-align:center}\n.record-detail .ring{width:155px;height:155px;background:conic-gradient(var(--o) 0 var(--percent),#F1E4D8 var(--percent) 100%)}\n.record-detail .seg button{flex:1;text-align:center;font-size:11px;font-weight:900;color:#826d61;padding:6px 0;border-radius:99px}\n.record-detail .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(150,110,70,.12)}\n.record-detail .list{flex:none;padding-bottom:12px}\n.record-detail button.star{padding:2px 4px;color:#89653e;font-size:18px}\n.record-detail button.star[aria-pressed=true]{color:#c7561e}\n", "checkin": "\n  :root{--ink:#2B211C;--ink2:#7B6A5F;--ink3:#B3A298;--line:rgba(120,86,62,.10);\n    --o:#F4621F;--odeep:#C0530F;--osoft:#FFF1E8;--mint:#12A78F;\n    --font:-apple-system,BlinkMacSystemFont,\"SF Pro Rounded\",\"PingFang SC\",\"Noto Sans SC\",Arial,sans-serif;}\n  *{box-sizing:border-box}\n  body{margin:0;font-family:var(--font);color:var(--ink);\n    background:radial-gradient(700px 460px at 6% -8%,#F9EEE2 0%,transparent 60%),#FBF8F4}\n  h1,h2,p{margin:0}\n  .wrap{max-width:1260px;margin:0 auto;padding:28px 18px 60px}\n  .kick{font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--odeep)}\n  h1{font-size:24px;letter-spacing:-.6px;margin:8px 0 8px}\n  .lead{font-size:12px;line-height:1.7;color:var(--ink2);max-width:820px}\n  .lead b{color:var(--ink)}\n  .row{display:flex;gap:20px;justify-content:center;margin-top:22px;flex-wrap:wrap}\n  .item{width:390px}\n  .cap{font-size:10.5px;font-weight:900;color:var(--ink3);margin:0 0 8px 2px}\n  .cap b{color:var(--odeep)}\n\n  .screen{width:390px;height:812px;border-radius:28px;overflow:hidden;position:relative;\n    background:linear-gradient(180deg,#FFF6EC 0%,#FFF9F3 18%,#FFF9F3 100%);\n    box-shadow:0 22px 48px rgba(150,110,70,.18),inset 0 0 0 1px rgba(150,110,70,.08);\n    display:flex;flex-direction:column}\n  .sbar{height:32px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:10.5px;font-weight:800;flex:none}\n  .island{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:74px;height:19px;border-radius:99px;background:#111}\n  .nav{flex:none;display:flex;align-items:center;padding:4px 16px 0}\n  .nav .back{width:24px;height:24px;display:grid;place-items:center;font-size:16px;color:#6F5E52}\n  .nav h2{font-size:15px;font-weight:900;flex:1;text-align:center;padding-right:18px}\n\n  .week{flex:none;display:flex;gap:4px;padding:10px 12px 8px;overflow:hidden}\n  .d{flex:1;background:#fff;border-radius:11px;padding:8px 2px 9px;text-align:center;border:1.5px solid transparent;box-shadow:0 3px 10px rgba(150,110,70,.06)}\n  .d .w{font-size:7.5px;font-weight:800;color:var(--ink3)}\n  .d .n{font-size:13px;font-weight:900;margin:1px 0 2px}\n  .d .f{font-size:11px;line-height:1}\n  .d.on{background:linear-gradient(180deg,#FF8A4C,#F4621F);border-color:#F4621F}\n  .d.on .w,.d.on .n{color:#fff}\n  .d.sel{background:#FFF1E8;border-color:#FFC9AE}\n  .d.sel .w,.d.sel .n{color:var(--odeep)}\n\n  .ringwrap{flex:none;display:flex;justify-content:center;padding:6px 0 2px}\n  .ring{width:190px;height:190px;border-radius:50%;position:relative;display:grid;place-items:center;\n    background:conic-gradient(var(--o) 0 38%, #F1E4D8 38% 100%);}\n  .ring::before{content:\"\";position:absolute;inset:9px;border-radius:50%;background:#FFFBF6}\n  .ring .in{position:relative;text-align:center}\n  .ring .big{font-size:30px;font-weight:900;letter-spacing:-1.4px;line-height:1}\n  .ring .u{font-size:11px;font-weight:900;color:var(--ink2)}\n  .ring .lb{font-size:9px;font-weight:800;color:var(--ink3);margin-top:3px}\n  .ring .mood{font-size:19px;line-height:1;margin-top:5px}\n\n  .seg{flex:none;display:flex;gap:4px;background:#F6F0E8;border-radius:99px;padding:3px;margin:8px 16px 8px}\n  .seg span{flex:1;text-align:center;font-size:11px;font-weight:900;color:#A2917F;padding:6px 0;border-radius:99px}\n  .seg span.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(150,110,70,.12)}\n  .seg em{font-style:normal;font-size:9px;color:#C0AC9A;margin-left:3px}\n\n  .list{flex:1;min-height:0;overflow:hidden;padding:0 14px}\n  .w{display:flex;align-items:center;gap:8px;background:#fff;border-radius:13px;padding:11px 12px;margin-bottom:7px;\n    box-shadow:0 4px 12px rgba(150,110,70,.06)}\n  .w .dot{width:6px;height:6px;border-radius:50%;background:var(--o);flex:none}\n  .w.m .dot{background:var(--mint)}\n  .w .en{flex:1;min-width:0}\n  .w .t{font-size:15px;font-weight:900;letter-spacing:-.2px}\n  .w .c{font-size:10px;color:#7B6A5F;font-weight:600;margin-top:2px;line-height:1.35}\n  .w .star{font-size:14px;color:#D8C9BB;flex:none}\n  .empty{padding:18px 0;text-align:center;font-size:10px;color:var(--ink3);font-weight:700}\n\n  .note{max-width:1240px;margin:20px auto 0;background:#fff;border-radius:18px;padding:14px 20px 8px;box-shadow:0 8px 20px rgba(180,140,100,.08)}\n  .note .t{font-size:10.5px;font-weight:900;letter-spacing:.4px;color:var(--odeep);margin-bottom:5px}\n  .note table{width:100%;border-collapse:collapse}\n  .note td{font-size:11px;line-height:1.65;padding:6px 8px;border-bottom:1px solid #F6EDE5;vertical-align:top;color:var(--ink2)}\n  .note tr:last-child td{border-bottom:0}\n  .note td:first-child{width:90px;font-weight:900;color:var(--ink);white-space:nowrap}\n  .note b{color:var(--ink)}\nbody{background:#fff9f3}\n.screen{width:100%;height:auto;min-height:100dvh;border-radius:0;margin:0;box-shadow:none;overflow:visible}\nbutton{font:inherit;color:inherit;cursor:pointer;border:0;background:none}\nbutton:focus-visible,input:focus-visible{outline:2px solid #087f71;outline-offset:2px}\nbutton:disabled{cursor:default;opacity:.56}\n.detail-summary,.plan-heading,.picker-head{display:flex;align-items:center;justify-content:space-between;gap:8px}\n.detail-summary{padding:12px 16px 5px;font-size:15px}\n.minor{flex:none;color:var(--odeep);border-radius:99px;background:var(--osoft);padding:7px 9px;font-size:11px;font-weight:850}\n.picker{background:#fff;border:1px solid #f1decf;border-radius:14px;padding:10px;margin-bottom:8px}\n.picker-head{margin-bottom:7px}\n.choices,.actions{display:flex;gap:6px;flex-wrap:wrap}\n.choices:not(:empty){margin-top:6px}\n.choice{padding:7px 9px;border:1px solid #eeddd1;background:#fff9f4;color:#724b38;border-radius:8px;font-size:11px;font-weight:800}\n.choice[aria-pressed=true]{background:var(--osoft);border-color:#f4a881;color:var(--odeep)}\n.choice small{font-size:9px;color:#866f62}\n.custom-form{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:11px}\n.custom-form input{width:70px;border:1px solid #e1c8b6;border-radius:7px;padding:6px}\n.plan-detail button.row,.plan-detail .cta,.lookup-detail .urow{width:100%;text-align:left}\n.plan-detail .row .k{flex:none}\n.plan-detail .row .n,.lookup-detail .u span{color:#826d61}\n.plan-detail .bottom{padding-bottom:14px}\n.plan-detail .sum b{font-variant-numeric:tabular-nums}\n.lookup-detail .tabsrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding-inline:12px;overflow:visible}\n.lookup-detail .tab{padding-inline:0;text-align:center;font-size:10px}\n.lookup-detail .tab em{display:block;margin:2px 0 0}\n.lookup-detail .units{overflow-x:auto;mask-image:none;-webkit-mask-image:none;padding-inline:14px;scrollbar-width:thin}\n.lookup-detail .u{flex:none;text-align:left}\n.lookup-detail .body{padding-bottom:14px}\n.lookup-detail .card{flex:none;margin-bottom:14px}\n.lookup-detail .en{width:34%;overflow-wrap:anywhere}\n.lookup-detail .empty{padding:22px;text-align:center;color:#826d61;font-size:12px}\n.lookup-detail .st{color:#775f50}\n.record-detail .actions{padding:4px 12px 0}\n.record-detail .range-hint{font-size:10px;color:#775f50;text-align:center}\n.record-detail .ring{width:155px;height:155px;background:conic-gradient(var(--o) 0 var(--percent),#F1E4D8 var(--percent) 100%)}\n.record-detail .seg button{flex:1;text-align:center;font-size:11px;font-weight:900;color:#826d61;padding:6px 0;border-radius:99px}\n.record-detail .seg button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(150,110,70,.12)}\n.record-detail .list{flex:none;padding-bottom:12px}\n.record-detail button.star{padding:2px 4px;color:#89653e;font-size:18px}\n.record-detail button.star[aria-pressed=true]{color:#c7561e}\n"};
+function mountDetails(initial) {
+  const root = document.getElementById('content');
+  const {key,context,books,activeId} = initial;
+  const statusNames = ['全部','已学','已复习','已掌握','未学'];
+  const esc = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const send = (action,payload) => parent.postMessage({type:'wordclass-entry',action,payload},'*');
+  const button = (attr,label,cls='',pressed) => `<button type="button" ${attr} class="${cls}"${pressed==null?'':` aria-pressed="${pressed}"`}>${label}</button>`;
+  const focus = (selector) => root.querySelector(selector)?.focus({preventScroll:true});
 
-function renderTextbook(body) {
-  const draft = {...savedTextbook,units:[...savedTextbook.units]};
-  const option = (key,value,title,pressed) => `<button type="button" class="entry-choice" data-${key}="${value}" aria-pressed="${pressed}">${title}</button>`;
-  const draw = focus => {
-    body.innerHTML = `<div class="entry-panel">
-      <p>选择年级、学期和计划要覆盖的单元。当前计划页按已选学习进度展示。</p>
-      <section class="entry-card"><h3>教材 · 人教 PEP 版</h3><div class="entry-grid">
-        ${Object.keys(gradeNames).map(g=>option('grade',g,gradeNames[g]+'年级',draft.grade===Number(g))).join('')}
-        ${['上','下'].map(t=>option('term',t,t+'册',draft.term===t)).join('')}</div></section>
-      <section class="entry-card"><h3>学习范围</h3><div class="entry-grid">
-        ${[1,2,3,4,5,6].map(i=>option('unit',i,'Unit '+i,draft.units.includes(i))).join('')}</div></section>
-      <p class="entry-note">当前选择　${bookName(draft)} · ${rangeName(draft.units)}</p>
-      <button class="entry-primary" type="button" data-save-book ${draft.units.length?'':'disabled'}>确认教材和范围</button>
-    </div>`;
-    body.querySelectorAll('button').forEach(button=>{
-      button.addEventListener('click',()=>{
-        if (button.hasAttribute('data-save-book')) {
-          savedTextbook = {...draft,units:[...draft.units]};
-          body.innerHTML = `<div class="entry-panel"><section class="entry-card"><h3>已保存选择</h3><p>${bookName(savedTextbook)} · ${rangeName(savedTextbook.units)}</p></section><p>返回后可继续查看今日各状态的原稿数据。</p><button class="entry-primary" type="button" data-return-today>返回今日</button></div>`;
-          body.querySelector('[data-return-today]').addEventListener('click',goBack);
-          body.querySelector('[data-return-today]').focus();
-          return;
-        }
-        const {grade,term,unit} = button.dataset;
-        if (grade) draft.grade=Number(grade);
-        if (term) draft.term=term;
-        if (unit) {
-          const num=Number(unit);
-          draft.units=draft.units.includes(num) ? draft.units.filter(i=>i!==num) : [...draft.units,num].sort((a,b)=>a-b);
-        }
-        draw(grade ? '[data-grade="'+grade+'"]' : term ? '[data-term="'+term+'"]' : '[data-unit="'+unit+'"]');
-      });
+  if (key === 'textbook') {
+    const unitSizes = [20,18,22,24,18,16];
+    const grades = ['三','四','五','六'];
+    const example = {grade:'五',term:'上',book:'人教PEP版',units:[1,2,3,4],daily:10};
+    let draft = context.custom ? {...context.custom,units:[...context.custom.units]} : example;
+    let pick = '', custom = false;
+    const fields = [['grade','年级'],['term','学期'],['book','教材'],['units','单元范围'],['daily','每天练习']];
+    const sizes = () => unitSizes.map((n,i) => n+(grades.indexOf(draft.grade)-2)*2+(draft.term==='下'?2:0)+(draft.book==='外研三起版'?1+(i%2):0));
+    const total = () => draft.book ? draft.units.reduce((sum,u)=>sum+sizes()[u-1],0) : 0;
+    const eta = () => draft.daily && total() ? Math.ceil(total()/draft.daily) : 0;
+    const date = days => {
+      const d = new Date(2026,10,9+days);
+      return (d.getMonth()+1)+' 月 '+d.getDate()+' 日';
+    };
+    const range = u => !u.length ? '请选择' : u.length===1 ? 'Unit '+u[0] : u.every((n,i)=>n===u[0]+i) ? 'Unit '+u[0]+' – '+u.at(-1) : u.map(n=>'U'+n).join('、');
+    const values = () => ({
+      grade:[draft.grade+'年级',''],term:[draft.term ? draft.term+'册':'请选择',''],
+      book:[draft.book || '请选择',draft.book?'6 单元':''],
+      units:[range(draft.units),total() ? total()+' 词':''],
+      daily:[draft.daily+' 词','约 '+Math.ceil(draft.daily*1.5)+' 分钟']
     });
-    if (focus) body.querySelector(focus)?.focus();
+    function panel() {
+      if (!pick) return '';
+      const name=fields.find(([k])=>k===pick)?.[1] || '已有计划';
+      let choices='';
+      if (pick==='saved') {
+        choices=books.map(b=>button(`data-restore="${b.id}"`,esc(b.label)+(b.id===activeId?' · 当前':''),'choice')).join('');
+      } else if (pick==='units') {
+        choices=unitSizes.map((_,i)=>button(`data-unit="${i+1}"`,`Unit ${i+1} <small>${sizes()[i]} 词</small>`,'choice',draft.units.includes(i+1))).join('');
+        choices=`<div class="actions">${button('data-all','全选','choice')}${button('data-clear','清空','choice')}</div><div class="choices">${choices}</div>`;
+      } else {
+        const items = pick==='grade'?grades:pick==='term'?['上','下']:pick==='book'?['人教PEP版','外研三起版']:[5,10,15,20];
+        const recommended=total()<=50 ? 5 : total()<=100 ? 10 : total()<=150 ? 15 : 20;
+        choices=items.map(v=>button(`data-value="${v}"`,pick==='daily'?v+' 词'+(v===recommended?' · 推荐':''):pick==='grade'?v+'年级':pick==='term'?v+'册':v,'choice',draft[pick]===v)).join('');
+        if (pick==='daily') choices+=button('data-custom','自定义','choice',custom);
+      }
+      return `<section class="picker" role="region" aria-label="选择${name}"><div class="picker-head"><b>${name}</b>${button('data-dismiss','完成','minor')}</div><div class="choices">${choices}</div>
+        ${pick==='daily'&&custom?'<form class="custom-form"><label for="daily-number">每日词数（最少 3 词）</label><input id="daily-number" name="daily" type="number" min="3" max="999" required inputmode="numeric"><button class="choice">应用</button></form>':''}</section>`;
+    }
+    function draw() {
+      const v=values(), days=eta();
+      root.innerHTML=`<div class="screen plan-detail">
+        <div class="body"><div class="plan-heading"><div><div class="h">新建学习计划</div><div class="sub">换任何一项都会重新算总词数和完成时间</div></div>${button('data-pick="saved"','已有计划','minor')}</div>
+          ${fields.map(([field,name])=>`<button type="button" class="row" data-pick="${field}" ${field==='term'&&!draft.grade||field==='book'&&!draft.term||field==='units'&&!draft.book?'disabled':''}><span class="k">${name}</span><span class="v">${v[field][0]}</span><span class="n">${v[field][1]}</span><span class="ch">›</span></button>`).join('')}
+          ${panel()}
+          <div class="sum" aria-live="polite"><div class="srow">总词数<b>${total()} 词</b></div><div class="srow">每天<b>${draft.daily} 词</b></div><div class="div"></div><div class="est"><b>${days || '—'}</b><span>天学完</span></div><div class="srow">预计完成<b>${days?date(days):'—'}</b></div></div>
+        </div><div class="bottom"><button class="cta" data-generate ${days?'':'disabled'}>生成学习计划</button><div class="hint">生成后今日页从第 1 天开始算</div></div></div>`;
+    }
+    root.addEventListener('click',e=>{
+      const b=e.target.closest('button');
+      if (!b) return;
+      const ds=b.dataset;
+      if (ds.restore) {send('restore',ds.restore);return;}
+      if ('generate' in ds) {
+        if (eta()) send('generate',{...draft,total:total(),days:eta(),eta:date(eta()),unitSizes:sizes()});
+        return;
+      }
+      if (ds.pick) { pick=ds.pick;custom=false;draw();focus('.picker .choice');return; }
+      if ('dismiss' in ds) {const field=pick;pick='';draw();focus(`[data-pick="${field}"]`);return;}
+      if (ds.unit) {
+        const u=+ds.unit;
+        draft.units=draft.units.includes(u)?draft.units.filter(n=>n!==u):[...draft.units,u].sort((a,b)=>a-b);
+        draw();focus(`[data-unit="${u}"]`);return;
+      }
+      if ('all' in ds || 'clear' in ds) { draft.units='all' in ds?[1,2,3,4,5,6]:[];draw();focus('all' in ds?'[data-all]':'[data-clear]');return; }
+      if ('custom' in ds) {custom=true;draw();focus('#daily-number');return;}
+      if (ds.value) {
+        const field=pick, v=ds.value;
+        if (field==='grade' && draft.grade!==v) draft={...draft,grade:v,term:'',book:'',units:[]};
+        if (field==='term' && draft.term!==v) draft={...draft,term:v,book:'人教PEP版',units:[1,2,3,4,5,6]};
+        if (field==='book' && draft.book!==v) draft={...draft,book:v,units:[1,2,3,4,5,6]};
+        if (field==='daily') draft={...draft,daily:+v};
+        pick='';draw();focus(`[data-pick="${field}"]`);
+      }
+    });
+    root.addEventListener('submit',e=>{
+      e.preventDefault();
+      if (!e.target.reportValidity()) return;
+      draft.daily=Number(new FormData(e.target).get('daily'));
+      pick='';draw();focus('[data-pick="daily"]');
+    });
+    draw();
+    return;
+  }
+
+  if (key==='progress') {
+    let filter=0, unit=0, unitView=false;
+    const {words,units} = context;
+    const matches = (w,st) => st===0 || st===1&&w.status>0 || st===2&&w.status>=2 || st===3&&w.status===3 || st===4&&w.status===0;
+    const count = (items,st) => items.filter(w=>matches(w,st)).length;
+    const byUnit = n => n?words.filter(w=>w.unit===n):words;
+    const progress = set => set.length ? count(set,1)*100/set.length : 0;
+    const row = w => {
+      const st = w.status ? statusNames[w.status] : statusNames[4];
+      return `<div class="w"><span class="dot ${w.status===3?'m':w.status===0?'g':''}"></span><div class="en">${esc(w.en)}</div><div class="cn">${esc(w.cn)}</div><div class="st ${w.status===3?'m':''}">${st}</div></div>`;
+    };
+    function draw(selector) {
+      const scope=byUnit(unit), visible=scope.filter(w=>matches(w,filter));
+      root.innerHTML=`<div class="screen lookup-detail">
+        <div class="detail-summary"><b>${esc(context.title)}</b>${button('data-unit-view',unitView?'返回词表':'按单元查看','minor')}</div>
+        ${unitView?`<div class="body"><div class="h">${units.length} 个单元</div><div class="sub">每格显示已学 / 总词数，点击查看单元词表</div>
+          <div class="sum3">${[1,2,3].map(st=>`<div><b>${count(words,st)}</b><span>${statusNames[st]}</span></div>`).join('')}</div>
+          ${units.map(n=>{const s=byUnit(n);return `<button type="button" class="urow" data-unit="${n}"><div class="big">Unit ${n}</div><div class="mid"><div class="pb"><i style="width:${progress(s)}%"></i></div><div class="meta">已学 ${count(s,1)}/${s.length} · 已掌握 ${count(s,3)}</div></div><div class="ch">›</div></button>`;}).join('')}</div>`
+          : `<div class="tabsrow" aria-label="学习状态">${statusNames.map((name,i)=>button(`data-status="${i}"`,name+`<em>${count(scope,i)}</em>`,'tab '+(filter===i?'on':''),filter===i)).join('')}</div>
+          <div class="units" aria-label="筛选单元">${[0,...units].map(n=>{const s=byUnit(n);return button(`data-unit="${n}"`,`<b>${n?'U'+n:'全书'}</b><span>${n?count(s,1)+'/'+s.length:s.length+' 词'}</span><div class="pb"><i style="width:${progress(s)}%"></i></div>`,'u '+(unit===n?'on':''),unit===n);}).join('')}</div>
+          <div class="card"><div class="chead" aria-live="polite">${unit?'Unit '+unit+' · ':''}${statusNames[filter]} · ${visible.length} 词<span class="c">按单元顺序</span></div>
+            <div class="word-scroll">${visible.length?visible.map(row).join(''):'<p class="empty">这个范围暂无符合条件的单词</p>'}</div></div>`}
+        </div>`;
+      if(selector) focus(selector);
+    }
+    root.addEventListener('click',e=>{
+      const b=e.target.closest('button');if(!b)return;
+      if(b.hasAttribute('data-unit-view')){unitView=!unitView;draw('[data-unit-view]');}
+      if('status' in b.dataset){filter=+b.dataset.status;draw(`[data-status="${filter}"]`);}
+      if('unit' in b.dataset){unit=+b.dataset.unit;unitView=false;draw(`[data-unit="${unit}"]`);}
+    });
+    draw();
+    return;
+  }
+
+  const {days,newGoal,reviewGoal,words, favorites} = context;
+  let start=days.length-1,end=start,anchor=null,mode='new',quick='';
+  const starred=new Set(favorites);
+  const last=days.length-1;
+  const baseDate = new Date(2026,10,9);
+  const dateAt = index => new Date(baseDate.getFullYear(),baseDate.getMonth(),baseDate.getDate()+index-last);
+  const shortDate = d => (d.getMonth()+1)+'月'+d.getDate()+'日';
+  const weekday = d => ['日','一','二','三','四','五','六'][d.getDay()];
+  const wordById = new Map(words.map(w=>[w.en,w]));
+  const aggregate = (range,kind) => {
+    const counts=new Map();
+    for (const day of range) for (const word of day[kind]) counts.set(word,(counts.get(word)||0)+1);
+    return counts;
   };
+  function draw(selector) {
+    const range=days.slice(start,end+1), multi=end!==start, minutes=range.reduce((sum,d)=>sum+d.minutes,0);
+    const buckets={new:aggregate(range,'new'),rev:aggregate(range,'rev')};
+    const title=multi?`${shortDate(dateAt(start))}–${shortDate(dateAt(end))} · ${range.length} 天`:`${dateAt(start).getFullYear()}年${shortDate(dateAt(start))} 周${weekday(dateAt(start))}`;
+    const goal=(kind)=>kind==='new'?newGoal:reviewGoal;
+    const amount=kind=>start===last&&!multi&&goal(kind)?buckets[kind].size+'/'+goal(kind):String(buckets[kind].size);
+    root.innerHTML=`<div class="screen record-detail">
+      <div class="detail-summary"><b aria-live="polite">${title}</b></div>
+      <div class="actions quick" aria-label="快捷时间范围">${[['week','最近 7 天'],['month','本月'],['all','全部']].map(([k,label])=>button(`data-quick="${k}"`,label,'choice',quick===k)).join('')}</div>
+      <div class="week" aria-label="选择单日或起止日期">${days.slice(-7).map((_,i)=>{const index=Math.max(0,days.length-7)+i,d=dateAt(index),on=index>=start&&index<=end;return button(`data-day="${index}" aria-label="${shortDate(d)}"`,`<div class="w">周${weekday(d)}</div><div class="n">${d.getDate()}</div>`,'d '+(on?(multi?'sel':'on'):''),on);}).join('')}</div>
+      <p class="range-hint">${anchor==null?'点一天看单日，再点另一日看区间':'已选 '+shortDate(dateAt(anchor))+'，再点一天确定区间'}</p>
+      <div class="ringwrap"><div class="ring" style="--percent:${Math.min(100,minutes/(range.length*45)*100)}%"><div class="in"><span class="big">${minutes}</span> <span class="u">分钟</span><div class="lb">${multi?range.length+' 天累计时长':start===last?'今天学习时长':'当天学习时长'}</div><div class="mood">${minutes?(multi?'😀':'🙂'):'·'}</div></div></div></div>
+      <div class="seg">${[['new','新学单词'],['rev','复习单词']].map(([k,label])=>button(`data-tab="${k}"`,label+`<em>${amount(k)}</em>`,mode===k?'on':'',mode===k)).join('')}</div>
+      <div class="list">${buckets[mode].size?[...buckets[mode]].map(([id,n])=>{const w=wordById.get(id);return `<div class="w ${mode==='rev'?'m':''}"><span class="dot"></span><div class="en"><div class="t">${esc(id)}</div><div class="c">${esc(w?.cn||'')}${mode==='rev'&&n>1?' · 复习 '+n+' 次':''}</div></div>${button(`data-star="${esc(id)}" aria-label="${starred.has(id)?'取消收藏':'收藏'} ${esc(id)}"`,starred.has(id)?'★':'☆','star',starred.has(id))}</div>`;}).join(''):'<p class="empty">所选日期暂无该类单词</p>'}</div>
+      </div>`;
+    if(selector) focus(selector);
+  }
+  root.addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;
+    const d=b.dataset;
+    if ('day' in d) {
+      const day=+d.day;
+      if(anchor==null){start=end=day;anchor=day;}else{start=Math.min(anchor,day);end=Math.max(anchor,day);anchor=null;}
+      quick='';draw(`[data-day="${day}"]`);
+    }
+    if(d.quick) {
+      end=last;anchor=null;quick=d.quick;
+      start=d.quick==='week'?Math.max(0,last-6):d.quick==='month'?Math.max(0,last-baseDate.getDate()+1):0;
+      draw(`[data-quick="${quick}"]`);
+    }
+    if(d.tab){mode=d.tab;draw(`[data-tab="${mode}"]`);}
+    if(d.star){
+      if(starred.has(d.star))starred.delete(d.star);else starred.add(d.star);
+      send('favorite',[...starred]);draw(`[data-star="${CSS.escape(d.star)}"]`);
+    }
+  });
   draw();
 }
 
-function renderProgress(body,state) {
-  const p = PLAN_STATE[state.plan];
-  const pct = Math.round(p.p);
-  body.innerHTML = `<div class="entry-panel">
-    <section class="entry-card"><h3>五年级上册 · 人教 PEP 版</h3><p>Unit 2–6 · 共 118 词</p>
-      <div class="entry-progress" role="progressbar" aria-label="计划学习进度" aria-valuenow="${p.v}" aria-valuemax="118"><i style="width:${p.p}%"></i></div>
-      <p><b>${p.v} / 118 词 · ${pct}%</b>　${p.date}</p>
-      <div class="entry-metrics">${['已学','已复习','已掌握'].map((label,i)=>`<div><b>${p.st[i]}</b><small>${label}</small></div>`).join('')}</div>
-    </section>
-    <section class="entry-card"><h3>今天 · ${todayTitle(state)}</h3>
-      <ul class="entry-list"><li><span>新学</span><strong>${state.n} / ${TOTAL_NEW} 词</strong></li><li><span>复习</span><strong>${state.r} / ${TOTAL_REV} 词</strong></li></ul>
-    </section>
-  </div>`;
-}
+const WORD_GROUPS = [
+  'player:运动员|him:他（宾格）|lovely:可爱的|clever:聪明的|young:年轻的|funny:滑稽的|kind:和蔼的|strict:严格的|quiet:安静的|polite:有礼貌的|helpful:有帮助的|hard-working:勤奋的|shy:害羞的|old:年老的|tall:高的|short:矮的|strong:强壮的|friendly:友好的|thin:瘦的|smart:聪明的',
+  'science:科学|team:队伍|Monday:星期一|Tuesday:星期二|Wednesday:星期三|Thursday:星期四|Friday:星期五|Saturday:星期六|Sunday:星期日|weekend:周末|wash:洗|read:读|watch:观看|play:玩|often:经常|sometimes:有时|usually:通常|homework:家庭作业',
+  'sandwich:三明治|salad:沙拉|hamburger:汉堡包|ice cream:冰激凌|tea:茶|fresh:新鲜的|healthy:健康的|delicious:美味的|hot:辣的|sweet:甜的|food:食物|drink:饮料|water:水|milk:牛奶|juice:果汁|rice:米饭|bread:面包|chicken:鸡肉|fish:鱼|vegetable:蔬菜|fruit:水果|favorite:最喜欢的',
+  'sing:唱歌|song:歌曲|dance:跳舞|draw:画|cartoon:漫画|swim:游泳|cook:烹饪|basketball:篮球|football:足球|pipa:琵琶|kung fu:功夫|speak:说|English:英语|Chinese:中文|learn:学习|practice:练习|run:跑|jump:跳|walk:走|listen:听|write:写|open:打开|close:关闭|help:帮助',
+  'clock:时钟|plant:植物|bottle:瓶子|bike:自行车|photo:照片|front:前面|behind:在……后面|beside:在……旁边|between:在……之间|above:在……上面|room:房间|bed:床|desk:书桌|chair:椅子|window:窗户|door:门|wall:墙|floor:地板',
+  'forest:森林|river:河流|lake:湖泊|mountain:山|hill:小山|tree:树|bridge:桥|building:建筑物|village:村庄|house:房屋|park:公园|nature:自然|flower:花|grass:草|bird:鸟|cloud:云'
+].map(group=>group.split('|').map(pair=>pair.split(':')));
+const BASE_UNIT_SIZES = WORD_GROUPS.map(group=>group.length);
+const EXTRAS = 'school:学校|garden:花园|apple:苹果|notebook:笔记本|computer:电脑|pencil:铅笔|friend:朋友|book:书|picture:图画|sun:太阳|moon:月亮|star:星星|morning:早晨|spring:春天|summer:夏天|winter:冬天|autumn:秋天|rain:雨|snow:雪|weather:天气|music:音乐|teacher:老师|student:学生|letter:字母|story:故事|map:地图|paper:纸|pen:钢笔|bag:包|box:盒子|train:火车|bus:公共汽车|plane:飞机|ship:船|road:道路|city:城市|shop:商店|market:市场|library:图书馆|classroom:教室|panda:熊猫|tiger:老虎'.split('|').map(pair=>pair.split(':'));
+const savedPlans = new Map();
+const activePlans = new Map();
+const originalViews = new WeakMap();
+let savedFavorites = [];
+const originalBook = {id:'original',label:'五年级上册 · 原计划'};
+const unitRange = units => units.length===1?'Unit '+units[0]:units.every((n,i)=>n===units[0]+i)?'Unit '+units[0]+'–'+units.at(-1):units.map(n=>'U'+n).join('、');
+const customTitle = p => p.grade+'年级'+p.term+'册';
+const routeId = route => route.mode+':'+route.state;
 
-function renderCheckin(body,state) {
-  const status = state.n===TOTAL_NEW ? '已打卡' : state.n ? '进行中' : '未开始';
-  const rows = [['第 12 天 · 今天',state.n,status],['第 11 天',4,'学习过'],['第 10 天',4,'学习过'],['第 9 天',3,'学习过'],['第 8 天',4,'学习过'],['第 7 天',5,'已打卡'],['第 6 天',0,'漏打卡'],['第 5 天',3,'学习过']];
-  body.innerHTML = `<div class="entry-panel">
-    <section class="entry-card"><h3>今日打卡</h3><p>计划第 12 天 / 共 25 天 · 学完 ${TOTAL_NEW} 个新词即可打卡</p>
-      <div class="entry-progress" role="progressbar" aria-label="今日打卡进度" aria-valuenow="${state.n}" aria-valuemax="${TOTAL_NEW}"><i style="width:${state.n/TOTAL_NEW*100}%"></i></div>
-      <p><b>${state.n} / ${TOTAL_NEW} 词 · ${status}</b></p>
-    </section>
-    <section class="entry-card"><h3>最近记录</h3><ul class="entry-list">
-      ${rows.map(([day,words,mark])=>`<li><span>${day} <small>${words} 词</small></span><strong>${mark}</strong></li>`).join('')}
-    </ul></section>
-  </div>`;
+function lookupWords(state, custom) {
+  const sizes = custom?.unitSizes || BASE_UNIT_SIZES;
+  const allowed=custom?.units || [1,2,3,4,5,6];
+  const partial = state.plan==='p50' && !custom;
+  const completed = state.plan==='p100' && !custom;
+  const learned=[18,14,10,8,0,0], reviewed=[12,9,7,4,0,0], mastered=[6,4,4,4,0,0];
+  const finalReviewed=[18,16,20,22,16,12], finalMastered=[6,7,7,6,5,5];
+  let nextExtra=0;
+  return allowed.flatMap(unit=>{
+    const group = WORD_GROUPS[unit-1], i=unit-1;
+    return Array.from({length:sizes[i]},(_,idx)=>{
+      const [en,cn]=group[idx]||EXTRAS[nextExtra++];
+      const m=partial?mastered[i]:completed?finalMastered[i]:0;
+      const r=partial?reviewed[i]:completed?finalReviewed[i]:0;
+      const l=partial?learned[i]:completed?sizes[i]:0;
+      return {en,cn,unit,status:idx<m?3:idx<r?2:idx<l?1:0};
+    });
+  });
 }
-function renderEntry(body,key,state) {
-  if (key==='textbook') renderTextbook(body);
-  else if (key==='progress') renderProgress(body,state);
-  else renderCheckin(body,state);
+function recordDays(state, custom) {
+  const today={minutes:state.n||state.r?state.n===2?18:state.r?24:19:0,new:['player','him','lovely','clever','kind'].slice(0,state.n),rev:['young','science','funny'].slice(0,state.r)};
+  if (custom) return Array.from({length:7},()=>({minutes:0,new:[],rev:[]}));
+  const days=Array.from({length:12},()=>({minutes:0,new:[],rev:[]}));
+  days[0]={minutes:12,new:['food','salad'],rev:['young']};
+  days[5]={minutes:9,new:['water'],rev:['funny']};
+  days[9]={minutes:state.n===2?19:16,new:['team','clever','quiet','polite','old'],rev:['young','funny','helpful','team','old']};
+  days[10]={minutes:state.n===2?15:12,new:['him','lovely','young','school','strong'],rev:['young','science','wash','read','play']};
+  days[11]=today;
+  return days;
 }
+function renderEntry(body,key,state,route) {
+  const activeId=activePlans.get(routeId(route)) || 'original';
+  const custom=savedPlans.get(activeId);
+  const bookWords=lookupWords(state,custom);
+  const context={custom,title:custom?customTitle(custom):'五年级上册',
+    units:custom?.units||[1,2,3,4,5,6],words:bookWords};
+  if(key==='checkin'){
+    context.days=recordDays(state,custom);
+    context.newGoal=custom?Math.min(custom.daily,custom.total):TOTAL_NEW;
+    context.reviewGoal=custom?0:TOTAL_REV;
+    context.words=[...bookWords,...EXTRAS.map(([en,cn])=>({en,cn}))];
+    context.favorites=savedFavorites;
+  }
+  const config={key,context,books:[originalBook,...Array.from(savedPlans,([id,p])=>({id,label:customTitle(p)+' · '+p.book+' · '+unitRange(p.units)+' · 每天 '+p.daily+' 词'}))],activeId};
+  const frame=document.createElement('iframe');
+  frame.title=entryTitles[key];
+  frame.className='embedded-entry';
+  frame.setAttribute('sandbox','allow-scripts allow-forms');
+  const serialize=value=>JSON.stringify(value).replaceAll('<','\\u003c');
+  frame.srcdoc='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<style>'+DETAIL_STYLES[key]+'</style><body><main id="content"></main><script>('+mountDetails.toString()+')('+serialize(config)+');<\/script></body></html>';
+  body.replaceChildren(frame);
+}
+function applyPlan(route,id) {
+  const ph=document.querySelector(`[data-screen="${route.state}"][data-dyn="${route.mode==='motion'?1:0}"]`);
+  const target=ph?.querySelector('.scr');
+  if(!target)return;
+  const nodes=target.querySelectorAll('.planwrap,.ck,.task');
+  if(!originalViews.has(ph)) originalViews.set(ph,[...nodes]);
+  const p=savedPlans.get(id);
+  activePlans.set(routeId(route),id);
+  if(!p) {
+    nodes.forEach((node,i)=>node.replaceWith(originalViews.get(ph)[i]));
+    delete ph.dataset.customPlan;
+    opener=ph.querySelector('[data-entry="textbook"]');
+    return;
+  }
+  ph.dataset.customPlan=id;
+  const layout=ph.querySelector('.plan').classList.contains('b')?'b':'a';
+  const fresh=document.createElement('div');
+  fresh.innerHTML=PLAN(layout,'p0',false,'none',p)+CHECKIN('none','今天还没开始，来开个头',route.mode==='motion',Math.min(p.daily,p.total),p.days)+TASK(0,0,route.mode==='motion','none',Math.min(p.daily,p.total),0);
+  nodes.forEach(node=>node.replaceWith(fresh.firstElementChild));
+  opener=ph.querySelector('[data-entry="textbook"]');
+}
+window.addEventListener('message',event=>{
+  const frame=document.querySelector('#entry-body iframe');
+  const route=readRoute();
+  const msg=event.data;
+  if(!route||!entryDialog.open||!frame||event.source!==frame.contentWindow||msg?.type!=='wordclass-entry')return;
+  if(route.key==='checkin'&&msg.action==='favorite'&&Array.isArray(msg.payload)){
+    savedFavorites=msg.payload.filter(item=>typeof item==='string');
+    return;
+  }
+  if(route.key!=='textbook')return;
+  if(msg.action==='generate'){
+    const id='plan-'+(savedPlans.size+1);
+    savedPlans.set(id,msg.payload);
+    applyPlan(route,id);
+    goBack();
+  }else if(msg.action==='restore'&&(msg.payload==='original'||savedPlans.has(msg.payload))){
+    applyPlan(route,msg.payload);
+    goBack();
+  }
+});
 
-const entryTitles = {textbook:'切换教材', progress:'查看进度', checkin:'打卡记录'};
+const entryTitles = {textbook:'更换学习计划', progress:'查看学习记录', checkin:'打卡记录'};
 const entryDialog = document.getElementById('entry-dialog');
 const entryBody = document.getElementById('entry-body');
 const entryTitle = document.getElementById('entry-title');
@@ -842,7 +1044,7 @@ function showEntryRoute() {
   activeEntry = routeKey;
   const state = SCREENS.find(item=>item.k===route.state);
   entryTitle.textContent = entryTitles[route.key];
-  renderEntry(entryBody, route.key, state);
+  renderEntry(entryBody, route.key, state, route);
   if (!entryDialog.open) entryDialog.showModal();
   closeEntryButton.focus({preventScroll:true});
 }
