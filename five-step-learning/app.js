@@ -15,6 +15,7 @@ const detailTabs = [
 const iconPaths = {
   sound: '<path d="M4 9v6h4l5 4V5L8 9H4zm12 0a4 4 0 0 1 0 6m2-8a7 7 0 0 1 0 10"/>',
   back: '<path d="m15 18-6-6 6-6"/>',
+  forward: '<path d="m9 18 6-6-6-6"/>',
   star: '<path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.4l6.1-.9L12 3z"/>',
   check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>',
   book: '<path d="M4 5h5a3 3 0 0 1 3 3v12a4 4 0 0 0-3-1H4zm16 0h-5a3 3 0 0 0-3 3v12a4 4 0 0 1 3-1h5z"/>',
@@ -27,8 +28,11 @@ const button = (action, label, attrs = '', className = '') =>
 const primary = (action, label, attrs = '') => button(action, label, attrs, 'primary');
 const soundButton = (accent, label, style = 'round') =>
   button('sound', icon('sound') + (style === 'accent' ? `<span>${label}</span>` : ''), `data-accent="${accent}" aria-label="${label}"`, style);
-const startState = {view:'start', index:0, step:0, tab:0, choice:null, used:[], answer:'', result:null};
+const startState = {view:'start', index:0, step:0, tab:0};
+const blankStep = () => ({choice:null, used:[], answer:'', result:null, visited:false, recording:''});
+const newProgress = () => demoWords.map(() => ({lastStep:0, steps:steps.map(blankStep)}));
 const state = {...startState};
+let progress = newProgress();
 const screen = document.querySelector('#demo-screen');
 const note = document.querySelector('#demo-note');
 const storageKey = 'wordclass-five-step-preview-v1';
@@ -42,12 +46,24 @@ audio.preload = 'auto';
 let audioRequest = 0;
 let audioMessage = '';
 let mic = null;
-let recording = '';
 let micMessage = '';
 let recordedPlayback = null;
 
 function currentWord() {
   return demoWords[state.index];
+}
+
+function currentStep() {
+  return progress[state.index].steps[state.step];
+}
+
+function phaseComplete(wordProgress) {
+  return wordProgress.steps.map((phase, i) => i < 2 ? phase.visited : phase.result === 'ok');
+}
+
+function nextUnfinishedWord(index, done) {
+  const later = done.findIndex((complete, i) => i > index && !complete);
+  return later >= 0 ? later : done.indexOf(false);
 }
 
 function statusBar() {
@@ -74,10 +90,34 @@ function toolBar(flags) {
   </nav>`;
 }
 
+function wordRail(index, hideCurrentWord, done) {
+  const arrow = (direction, label, disabled, graphic) => button('switch-word', icon(graphic),
+    `data-index="${index + direction}" aria-label="${label}" ${disabled ? 'disabled' : ''}`, 'word-arrow');
+  return `<section class="word-nav" aria-label="本轮单词">
+    <div class="switch-label"><b>本轮单词</b><span>${index + 1} / ${demoWords.length}</span></div>
+    <div class="word-switch">
+      ${arrow(-1, '上一个词', index === 0, 'back')}
+      <div class="word-rail" role="group" aria-label="横滑选择单词">${demoWords.map(({word}, i) => {
+        const current = i === index;
+        const label = current && hideCurrentWord ? '第 ' + (i + 1) + ' 词' : word;
+        const attrs = `data-index="${i}" ${current ? 'aria-current="true"' : ''} aria-label="${label}${done[i] ? '，已完成' : ''}"`;
+        return button('select-word', `<span ${current && hideCurrentWord ? '' : 'lang="en"'}>${label}</span>${done[i] ? '<span class="word-check" aria-hidden="true">✓</span>' : ''}`, attrs, 'word-chip');
+      }).join('')}</div>
+      ${arrow(1, '下一个词', index === demoWords.length - 1, 'forward')}
+    </div>
+  </section>`;
+}
+
 function stepView(model, word, prefix, live) {
-  const {step, index, used, choice, answer, result} = model;
-  const [name,title] = steps[step];
+  const {step, index, used = [], choice = null, answer = '', result, wordDone = [], phaseDone = []} = model;
+  const [,title] = steps[step];
   const checked = result === 'ok';
+  const reveal = step < 3 || checked;
+  const remainingStep = phaseDone.findIndex(done => !done);
+  const followingWord = nextUnfinishedWord(index, wordDone);
+  const finishLabel = remainingStep >= 0 ? '补做「' + steps[remainingStep][0] + '」' :
+    followingWord < 0 ? '完成本轮' : followingWord === index + 1 ? '下一个词' : '继续未完成词';
+  const finish = primary('complete',finishLabel);
   const next = primary('next', '下一步 · ' + (steps[step + 1]?.[0] || ''));
   let task, cta;
   if (step === 0) {
@@ -87,7 +127,7 @@ function stepView(model, word, prefix, live) {
   } else if (step === 1) {
     const label = live && mic ? (mic.recorder ? '停止录音' : '取消录音') : '录音跟读';
     task = `<section class="task"><p>听完示范，再开口读一遍。</p>
-      <div class="actions">${button('record', icon('mic') + label, '', 'soft')}${live && recording ? button('replay-recording','回听录音','','soft') : ''}</div>
+      <div class="actions">${button('record', icon('mic') + label, '', 'soft')}${live && model.recording ? button('replay-recording','回听录音','','soft') : ''}</div>
       <p class="feedback" role="status">${live ? micMessage : ''}</p></section>`;
     cta = next;
   } else if (step === 2) {
@@ -105,21 +145,27 @@ function stepView(model, word, prefix, live) {
   } else {
     task = `<form class="task write" id="${prefix}-write"><label><span>${word.meaning}</span>
       <input name="answer" placeholder="输入英文" autocomplete="off" autocapitalize="none" spellcheck="false" required value="${escape(answer)}" ${checked ? 'readonly' : ''}></label></form>`;
-    cta = checked ? primary('complete', index + 1 < demoWords.length ? '下一个词' : '完成本轮') :
+    cta = checked ? finish :
       `<button class="primary" type="submit" form="${prefix}-write">检查拼写</button>`;
   }
+  if (wordDone[index]) cta = finish;
   const flags = live ? wordFlags[word.word] || {} : model.flags || {};
   return `${topBar('五步学习', '返回开始页')}
+    ${wordRail(index, !reveal, wordDone)}
+    <section class="phase-nav" aria-label="当前单词的五步">
+      <div class="switch-label"><b>当前词的步骤</b><span>${step + 1} / ${steps.length}</span></div>
+      <div class="step-track" role="group" aria-label="选择学习步骤">${steps.map(([label],i) =>
+        button('switch-step', label + (phaseDone[i] && i !== step ? '<span aria-hidden="true"> ✓</span>' : ''),
+          `data-index="${i}" ${i === step ? 'aria-current="step"' : ''} aria-label="${label}${phaseDone[i] ? '，已完成' : ''}"`,
+          phaseDone[i] ? 'past' : '')).join('')}</div>
+    </section>
     <div class="phone-body">
-      <div class="progress"><span>第 ${index + 1} / ${demoWords.length} 词</span><span>${step + 1} / 5</span></div>
-      <ol class="step-track" aria-label="五步学习进度">${steps.map(([label],i) =>
-        `<li class="${i < step ? 'past' : ''}" ${i === step ? 'aria-current="step"' : ''}>${label}</li>`).join('')}</ol>
-      ${wordBar(word, step < 3 || checked, live ? audioMessage : model.audioMessage)}
+      ${wordBar(word, reveal, live ? audioMessage : model.audioMessage)}
       <h4 class="task-title">${title}</h4>
       ${task}
       <p class="feedback ${result === 'wrong' ? 'wrong' : ''}" role="status">${checked ? '答对了' : result === 'wrong' ? '再试一次' : ''}</p>
     </div>
-    <footer class="phone-footer"><div class="cta">${cta}</div>${toolBar(flags)}</footer>`;
+    <footer class="phone-footer"><div class="cta ${step ? 'cta-pair' : ''}">${step ? button('previous-step','上一步','','secondary') : ''}${cta}</div>${toolBar(flags)}</footer>`;
 }
 
 function listCard(rows) {
@@ -168,8 +214,21 @@ function phoneView(model, prefix, live = false) {
 
 function render({focus, preserveScroll = false} = {}) {
   const oldScroll = preserveScroll ? screen.querySelector('.phone-body')?.scrollTop || 0 : 0;
-  screen.innerHTML = phoneView(state, 'demo', true);
+  const railScroll = screen.querySelector('.word-rail')?.scrollLeft || 0;
+  const wordDone = progress.map(word => phaseComplete(word).every(Boolean));
+  const model = {...state, ...currentStep(), wordDone, phaseDone:phaseComplete(progress[state.index])};
+  screen.innerHTML = phoneView(model, 'demo', true);
   screen.querySelector('.phone-body').scrollTop = oldScroll;
+  const rail = screen.querySelector('.word-rail');
+  if (rail) {
+    rail.scrollLeft = railScroll;
+    const active = rail.querySelector('[aria-current="true"]');
+    const bounds = rail.getBoundingClientRect();
+    const item = active.getBoundingClientRect();
+    if (item.left < bounds.left || item.right > bounds.right) {
+      rail.scrollLeft += item.left - bounds.left - (bounds.width - item.width) / 2;
+    }
+  }
   if (focus) screen.querySelector(focus)?.focus({preventScroll:true});
   const title = state.view === 'step' ? steps[state.step][1] : state.view === 'detail' ? detailTabs[state.tab][0] : state.view === 'done' ? '本轮完成' : '体验入口';
   note.textContent = '当前页面 · ' + title;
@@ -211,9 +270,16 @@ function clearRecording() {
   mic = null;
   if (request?.recorder?.state === 'recording') request.recorder.stop();
   request?.stream?.getTracks().forEach(track => track.stop());
-  if (recording) URL.revokeObjectURL(recording);
-  recording = '';
   micMessage = '';
+}
+
+function releaseRecordings() {
+  for (const word of progress) {
+    for (const phase of word.steps) {
+      if (phase.recording) URL.revokeObjectURL(phase.recording);
+      phase.recording = '';
+    }
+  }
 }
 
 async function recordVoice() {
@@ -234,6 +300,9 @@ async function recordVoice() {
   }
   stopAudio();
   clearRecording();
+  const phase = currentStep();
+  if (phase.recording) URL.revokeObjectURL(phase.recording);
+  phase.recording = '';
   const request = {};
   mic = request;
   micMessage = '正在请求麦克风权限';
@@ -253,7 +322,7 @@ async function recordVoice() {
       stream.getTracks().forEach(track => track.stop());
       if (mic !== request) return;
       mic = null;
-      recording = URL.createObjectURL(new Blob(chunks, {type:recorder.mimeType}));
+      phase.recording = URL.createObjectURL(new Blob(chunks, {type:recorder.mimeType}));
       micMessage = '录音已完成';
       render({focus:'[data-action="replay-recording"]',preserveScroll:true});
     });
@@ -268,12 +337,19 @@ async function recordVoice() {
   render({focus:'[data-action="record"]',preserveScroll:true});
 }
 
-function enterStep(step, index = state.index) {
+function enterStep(step, index = state.index, focus = '.phone-nav h3') {
   stopAudio();
   clearRecording();
-  Object.assign(state, {view:'step',index,step,choice:null,used:[],answer:'',result:null});
-  render({focus:'.phone-nav h3'});
+  Object.assign(state, {view:'step',index,step});
+  progress[index].lastStep = step;
+  currentStep().visited = true;
+  render({focus});
   playWord('us');
+}
+
+function switchWord(index) {
+  if (index === state.index || !progress[index]) return;
+  enterStep(progress[index].lastStep, index, '[data-action="select-word"][aria-current="true"]');
 }
 
 function goBack() {
@@ -295,7 +371,7 @@ function changeTab(index) {
 }
 
 function checkAnswer(correct) {
-  state.result = correct ? 'ok' : 'wrong';
+  currentStep().result = correct ? 'ok' : 'wrong';
   render({focus:correct ? '.cta button' : state.step === 4 ? '[name="answer"]' : undefined, preserveScroll:true});
 }
 
@@ -304,14 +380,24 @@ screen.addEventListener('click', event => {
   if (!target) return;
   const {action, index, accent} = target.dataset;
   const word = currentWord();
-  if (action === 'start') enterStep(0,0);
+  const phase = currentStep();
+  if (action === 'start') {
+    releaseRecordings();
+    progress = newProgress();
+    enterStep(0,0);
+  }
   else if (action === 'back') goBack();
+  else if (action === 'select-word' || action === 'switch-word') switchWord(Number(index));
+  else if (action === 'switch-step' && Number(index) !== state.step) {
+    enterStep(Number(index), state.index, '[data-action="switch-step"][aria-current="step"]');
+  }
+  else if (action === 'previous-step') enterStep(state.step - 1);
   else if (action === 'next') enterStep(state.step + 1);
   else if (action === 'sound') playWord(accent);
   else if (action === 'record') recordVoice();
   else if (action === 'replay-recording') {
     stopAudio();
-    recordedPlayback = new Audio(recording);
+    recordedPlayback = new Audio(phase.recording);
     recordedPlayback.play().catch(() => {
       micMessage = '当前浏览器无法回听该录音。';
       render({preserveScroll:true});
@@ -328,19 +414,22 @@ screen.addEventListener('click', event => {
     render({focus:'.phone-nav h3'});
   } else if (action === 'tab') changeTab(Number(index));
   else if (action === 'choose') {
-    state.choice = Number(index);
-    state.result = null;
+    phase.choice = Number(index);
+    phase.result = null;
     render({focus:`[data-action="choose"][data-index="${index}"]`,preserveScroll:true});
   } else if (action === 'letter' || action === 'remove-letter') {
-    if (action === 'letter') state.used.push(Number(index));
-    else state.used.splice(Number(index),1);
-    state.result = null;
+    if (action === 'letter') phase.used.push(Number(index));
+    else phase.used.splice(Number(index),1);
+    phase.result = null;
     render({focus:'[data-action="letter"]:not(:disabled), .cta button:not(:disabled)',preserveScroll:true});
   } else if (action === 'check') {
-    checkAnswer(state.step === 2 ? word.choices[state.choice] === word.meaning :
-      state.used.map(i => word.letters[i]).join('') === word.word);
+    checkAnswer(state.step === 2 ? word.choices[phase.choice] === word.meaning :
+      phase.used.map(i => word.letters[i]).join('') === word.word);
   } else if (action === 'complete') {
-    if (state.index + 1 < demoWords.length) enterStep(0,state.index + 1);
+    const missing = phaseComplete(progress[state.index]).indexOf(false);
+    const followingWord = nextUnfinishedWord(state.index,progress.map(word => phaseComplete(word).every(Boolean)));
+    if (missing >= 0) enterStep(missing);
+    else if (followingWord >= 0) switchWord(followingWord);
     else {
       stopAudio();
       state.view = 'done';
@@ -349,11 +438,11 @@ screen.addEventListener('click', event => {
   }
 });
 screen.addEventListener('input', event => {
-  if (event.target.name === 'answer') state.answer = event.target.value;
+  if (event.target.name === 'answer') currentStep().answer = event.target.value;
 });
 screen.addEventListener('submit', event => {
   event.preventDefault();
-  checkAnswer(state.answer.trim().toLowerCase() === currentWord().word);
+  checkAnswer(currentStep().answer.trim().toLowerCase() === currentWord().word);
 });
 screen.addEventListener('keydown', event => {
   if (!event.target.matches('[role="tab"]')) return;
@@ -363,7 +452,7 @@ screen.addEventListener('keydown', event => {
   event.preventDefault();
   changeTab(positions[event.key]);
 });
-window.addEventListener('pagehide', () => { stopAudio(); clearRecording(); });
+window.addEventListener('pagehide', () => { stopAudio(); clearRecording(); releaseRecordings(); });
 
 function galleryCard(id, title, description, model, bullets) {
   return `<article class="spec-row gallery-row" id="${id}">
@@ -382,10 +471,13 @@ const phaseNotes = [
 ];
 document.querySelector('#step-gallery').innerHTML =
   galleryCard('step-00','体验入口','点击开始后进入第一个词的「学」。',startState,['浏览器收到点击后即可播放音频。']) +
+  galleryCard('navigation-01','选词与切步骤','示例停在第 2 个词的「拼」。',
+    {...startState,view:'step',index:1,step:3,used:[2,3],wordDone:[true],phaseDone:[true,true,true,false,false],audioMessage:'已播报 · 可重听'},
+    ['上排横滑点词，也可用两侧箭头切相邻词。勾号表示该词五步均完成。','下排可直接点任一步，底部「上一步」只退当前词的一步。','切回之前的词会恢复上次所在步骤和答案。拼、写时，当前词先显示序号。']) +
   steps.map(([name,title,description],step) => galleryCard(`step-0${step + 1}`,`${step + 1} · ${name} · ${title}`,description,
-    {...startState,view:'step',step,audioMessage:'已播报 · 可重听',flags:step === 2 ? {favorite:true,mastery:true} : {}},
+    {...startState,view:'step',step,phaseDone:steps.map((_,i) => i < step),audioMessage:'已播报 · 可重听',flags:step === 2 ? {favorite:true,mastery:true} : {}},
     [phaseNotes[step], '进入时自动播放美式发音，音标和三个单词入口固定在各步。'])).join('') +
-  galleryCard('step-06','本轮完成','两个单词都写对后出现学习小结。',{...startState,view:'done'},['再次体验会从第一个词开始。收藏和掌握状态保存在当前浏览器。']);
+  galleryCard('step-06','本轮完成','五个单词都完成五步后出现学习小结。',{...startState,view:'done'},['再次体验会从第一个词开始。收藏和掌握状态保存在当前浏览器。']);
 document.querySelector('#detail-gallery').innerHTML = detailTabs.map(([label,title,description],tab) =>
   galleryCard(`detail-0${tab+1}`,`${tab+1} · ${label}`,title,{...startState,view:'detail',tab},
     [description,'顶部横向切换五个标签，左上返回原学习步骤。'])).join('');

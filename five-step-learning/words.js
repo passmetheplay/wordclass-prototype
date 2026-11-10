@@ -24,5 +24,45 @@ const demoWords = [
     base: '把 work 当作完整词基记。人投入精力叫 work，机器能正常发挥作用也叫 work。',
     family: [['work + -er', 'worker', '工人、工作者'], ['home + work', 'homework', '家庭作业'], ['work + place', 'workplace', '工作场所']],
     examples: [['My parents work near our school.', '我爸妈在我们学校附近工作。', '动词 · 工作'], ['The old radio still works.', '这台旧收音机还能用。', '动词 · 运转'], ['This painting is her best work.', '这幅画是她最好的作品。', '名词 · 作品']]
+  },
+  {
+    word: 'clean', us: '/kliːn/', uk: '/kliːn/', meaning: '打扫',
+    choices: ['阅读', '打扫', '散步'], letters: ['e', 'n', 'c', 'a', 'l'],
+    senses: [
+      ['动词', [['打扫、清洁', '清除污渍、灰尘或垃圾。']]],
+      ['形容词', [['干净的', '没有污垢或杂物。'], ['清洁的', '污染较少或没有污染。']]],
+      ['副词', [['完全地', '在 clean off 等表达中可以加强语气。']]]
+    ],
+    forms: [['clean', '动词原形、形容词原级'], ['cleans', '第三人称单数'], ['cleaned', '过去式、过去分词'], ['cleaning', '现在分词、动名词'], ['cleaner', '形容词比较级'], ['cleanest', '形容词最高级']],
+    pairs: [['clean the room', '打扫房间'], ['clean up', '收拾干净'], ['clean water', '干净的水'], ['keep it clean', '保持干净']],
+    base: 'clean 是完整词基。从「干净」联想到「让东西变干净」，就能区分形容词和动词用法。',
+    family: [['clean + -er', 'cleaner', '清洁工、清洁设备'], ['un- + clean', 'unclean', '不干净的']],
+    examples: [['I clean my desk after class.', '下课后我打扫书桌。', '动词 · 打扫'], ['We need clean water.', '我们需要干净的水。', '形容词 · 干净的']]
+  },
+  {
+    word: 'walk', us: '/wɑːk/', uk: '/wɔːk/', meaning: '步行',
+    choices: ['观看', '预订', '步行'], letters: ['l', 'w', 'k', 'a'],
+    senses: [
+      ['动词', [['步行、走路', '用脚从一处走到另一处。'], ['陪同步行', '和别人一起走一段路。'], ['遛', '牵着宠物出去散步。']]],
+      ['名词', [['散步', '一次以步行为主的活动。'], ['步行路程', '用走路所需的时间描述距离。']]]
+    ],
+    forms: [['walk', '动词原形、名词单数'], ['walks', '第三人称单数、名词复数'], ['walked', '过去式、过去分词'], ['walking', '现在分词、动名词']],
+    pairs: [['walk to school', '步行去学校'], ['walk the dog', '遛狗'], ['go for a walk', '出去散步'], ['a ten-minute walk', '步行十分钟的路程']],
+    base: 'walk 是完整词基。把「一步步走」作为核心画面，同时帮助记住步行和散步两个词性用法。',
+    family: [['walk + -er', 'walker', '步行者'], ['walk + way', 'walkway', '步行通道']],
+    examples: [['I walk to school with my sister.', '我和姐姐一起走路上学。', '动词 · 步行'], ['Let’s go for a walk after dinner.', '晚饭后我们去散散步吧。', '名词 · 散步']]
+  },
+  {
+    word: 'book', us: '/bʊk/', uk: '/bʊk/', meaning: '书',
+    choices: ['手表', '书', '工作'], letters: ['o', 'k', 'b', 'o'],
+    senses: [
+      ['名词', [['书、书籍', '可阅读的印刷品或电子出版物。'], ['本、册', '装订起来的纸张，例如笔记本或账簿。']]],
+      ['动词', [['预订', '提前留好座位、房间或票。'], ['登记警告', '裁判把犯规球员记下来。']]]
+    ],
+    forms: [['book', '动词原形、名词单数'], ['books', '第三人称单数、名词复数'], ['booked', '过去式、过去分词'], ['booking', '现在分词、动名词']],
+    pairs: [['read a book', '读一本书'], ['a picture book', '一本图画书'], ['book a room', '预订房间'], ['book a ticket', '预订一张票']],
+    base: 'book 是完整词基。先记看得见的「书」，再用 book a room 记住「预订」这个动词义项。',
+    family: [['book + shop', 'bookshop', '书店'], ['book + shelf', 'bookshelf', '书架'], ['book + -ing', 'booking', '预订记录']],
+    examples: [['I brought a book to school.', '我带了一本书到学校。', '名词 · 书'], ['Dad will book a room for the trip.', '爸爸会为这次旅行预订一个房间。', '动词 · 预订']]
   }
 ];

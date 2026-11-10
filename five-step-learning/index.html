@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>词课 · 五步学习法</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="words.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=2">
+  <script src="words.js?v=2" defer></script>
+  <script src="app.js?v=2" defer></script>
 </head>
 <body>
   <main class="workspace">
@@ -15,19 +15,21 @@
       <h1>五步学习法</h1>
       <p>先确认五步共有的发音、音标和单词工具，再逐步打磨练习页面。</p>
       <nav class="links" aria-label="原型目录">
-        <a href="#demo">动态原型</a><a href="#steps">五步手机图</a><a href="#details">单词详解手机图</a>
+        <a href="#demo">动态原型</a><a href="#navigation-01">切换布局图</a><a href="#steps">五步手机图</a><a href="#details">单词详解手机图</a>
       </nav>
     </header>
     <section id="demo" class="spec-row" aria-label="动态原型">
       <div class="phone"><div id="demo-screen" class="screen"></div></div>
       <aside class="note">
         <span class="eyebrow">动态原型</span>
-        <h2>从第一个词学到第二个词</h2>
+        <h2>在五个词和五个步骤之间切换</h2>
         <ol>
           <li>点「开始体验」开启音频。之后进入每个新步骤，都自动播报一次美式发音。点音标旁的扬声器可重听。</li>
+          <li>上排是本轮单词，可横滑点选或点左右箭头。新词从「学」开始，回来时接上次的步骤和答案。</li>
+          <li>下排只切换当前词的「学、读、练、拼、写」。学、读进入即记录，练、拼、写答对后打勾。</li>
           <li>五步底部固定显示收藏单词、标记掌握和单词详解。收藏与掌握按单词分别保存，可再次点击撤销。标记后继续本轮五步。</li>
           <li>详解默认打开「单词角」。返回时恢复原步骤、所选答案和拼词进度，可以手动重听。</li>
-          <li>拼、写保留音标和重听入口。检查通过后才在词卡上显示完整拼写。</li>
+          <li>拼、写保留音标和重听入口。当前词在上排先显示序号，检查通过后恢复词名。</li>
         </ol>
         <div id="demo-note" class="current-note" aria-live="polite"></div>
         <a href="#steps">看逐页手机图和说明 ↓</a>
@@ -37,12 +39,15 @@
     <section id="details" class="gallery"><div class="section-head"><span class="eyebrow">下级页面</span><h2>单词详解的五个标签</h2><nav id="detail-links" class="links" aria-label="单词详解手机图目录"></nav></div><div id="detail-gallery" class="gallery-list"></div></section>
     <footer class="credits">
       <details><summary>词义参考与音频署名</summary>
-        <p>释义为原型编写的常见义项，英文例句为自编。音标和词义可对照 <a href="https://dictionary.cambridge.org/us/dictionary/english/watch" target="_blank" rel="noopener">Cambridge · watch</a> 和 <a href="https://dictionary.cambridge.org/us/dictionary/english/work" target="_blank" rel="noopener">Cambridge · work</a>。</p>
+        <p>释义为原型编写的常见义项，英文例句为自编。音标和词义可对照 Cambridge 的 <a href="https://dictionary.cambridge.org/us/dictionary/english/watch" target="_blank" rel="noopener">watch</a>、<a href="https://dictionary.cambridge.org/us/dictionary/english/work" target="_blank" rel="noopener">work</a>、<a href="https://dictionary.cambridge.org/pronunciation/english/clean" target="_blank" rel="noopener">clean</a>、<a href="https://dictionary.cambridge.org/pronunciation/english/walk" target="_blank" rel="noopener">walk</a> 和 <a href="https://dictionary.cambridge.org/pronunciation/english/book" target="_blank" rel="noopener">book</a>。</p>
         <ul>
           <li>watch 美音：Dvortygirl，<a href="https://commons.wikimedia.org/wiki/File:En-us-watch.ogg" target="_blank" rel="noopener">原音</a>，<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>。</li>
           <li>watch 英音：SeanCollins 和 Emily，<a href="https://commons.wikimedia.org/wiki/File:En-gb-watch.ogg" target="_blank" rel="noopener">原音</a>，公有领域。</li>
           <li>work 美音：Dvortygirl，<a href="https://commons.wikimedia.org/wiki/File:En-us-work.ogg" target="_blank" rel="noopener">原音</a>，公有领域。</li>
           <li>work 英音：Association Shtooka 和 Judith Franck，<a href="https://commons.wikimedia.org/wiki/File:En-uk-work.ogg" target="_blank" rel="noopener">原音</a>，<a href="https://creativecommons.org/licenses/by/3.0/us/" target="_blank" rel="noopener">CC BY 3.0 US</a>。</li>
+          <li>clean、walk、book 美音：Dvortygirl，原音为 <a href="https://commons.wikimedia.org/wiki/File:En-us-clean.ogg" target="_blank" rel="noopener">clean</a>、<a href="https://commons.wikimedia.org/wiki/File:En-us-walk.ogg" target="_blank" rel="noopener">walk</a>、<a href="https://commons.wikimedia.org/wiki/File:En-us-book.ogg" target="_blank" rel="noopener">book</a>，<a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>。</li>
+          <li>clean 和 book 英音：Association Shtooka 和 Judith Franck，原音为 <a href="https://commons.wikimedia.org/wiki/File:En-uk-clean.ogg" target="_blank" rel="noopener">clean</a> 和 <a href="https://commons.wikimedia.org/wiki/File:En-uk-book.ogg" target="_blank" rel="noopener">book</a>，<a href="https://creativecommons.org/licenses/by/3.0/us/" target="_blank" rel="noopener">CC BY 3.0 US</a>。</li>
+          <li>walk 英音：Adam470，<a href="https://commons.wikimedia.org/wiki/File:En-uk-walk.ogg" target="_blank" rel="noopener">原音</a>，<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>。</li>
         </ul>
         <p>播放文件为 Wikimedia Commons 提供的 MP3 转码。</p>
       </details>
