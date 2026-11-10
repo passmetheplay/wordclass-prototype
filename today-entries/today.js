@@ -170,7 +170,7 @@ const whole = document.body.dataset.view === "whole";
     <nav class="tabs" aria-label="底部导航">
       <button type="button" class="tab active" data-prototype-tab="today" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.6 12 3l9 7.6V21a1 1 0 0 1-1 1h-5.2v-6.6H9.2V22H4a1 1 0 0 1-1-1z"/></svg>今日</button>
       <button type="button" class="tab" data-prototype-tab="unit" ${whole ? '' : 'disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22z"/></svg>单元学</button>
-      <button type="button" class="tab" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8.5 12 2.2 2.2L15.8 9"/></svg>检测</button>
+      <button type="button" class="tab" data-prototype-tab="quiz" ${whole ? '' : 'disabled'}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8.5 12 2.2 2.2L15.8 9"/></svg>小测</button>
       <button type="button" class="tab" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>我的</button>
     </nav>`;
 

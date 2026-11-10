@@ -1,9 +1,9 @@
 .tabs button.tab{border:0;padding:0;background:none;font-family:inherit;cursor:pointer}
 .tabs button.tab:focus-visible{outline:2px solid #168974;outline-offset:3px}
-.unit-slot{position:absolute;inset:28px 0 48px;overflow:hidden}
-.unit-slot iframe{
+.prototype-slot{position:absolute;inset:28px 0 48px;overflow:hidden}
+.prototype-slot iframe{
   display:block;border:0;
-  /* Keep the unit screens at their design width within the 274px phone interior. */
+  /* Keep shared screens at their design width within the 274px phone interior. */
   width:394px;height:calc(100% * 394 / 274);
   transform:scale(calc(274 / 394));transform-origin:top left
 }
